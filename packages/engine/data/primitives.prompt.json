@@ -1,0 +1,77 @@
+{
+  "static": {
+    "purpose": "Paint the whole surface one uniform color as a visible base."
+  },
+  "gradient": {
+    "purpose": "Blend two or more colors across the keyboard as a static spatial ramp."
+  },
+  "breath": {
+    "purpose": "Fade brightness smoothly up and down like breathing."
+  },
+  "blink": {
+    "purpose": "Turn the surface on and off in a regular blink; keep the period at or above 340 ms."
+  },
+  "rainbow_wave": {
+    "purpose": "Scroll a rainbow palette along a row or column."
+  },
+  "wave": {
+    "purpose": "Send a single-color brightness wave across the surface."
+  },
+  "scroll": {
+    "purpose": "Move a bright band along an axis like a marquee or scanner."
+  },
+  "sparkle": {
+    "purpose": "Light random points that fade out like stars or glitter; colors come from the palette."
+  },
+  "drift": {
+    "purpose": "Float small clusters slowly across the surface with optional wobble."
+  },
+  "ring": {
+    "purpose": "Spawn colorful rings that expand or contract and fade out."
+  },
+  "key_ring": {
+    "purpose": "Expand a ring from each pressed key, up to a limited number of waves. Audio onset may set params.origin=random_key for scattered rings, or board_center for one central event."
+  },
+  "mote": {
+    "purpose": "Drift many tiny soft points across the surface like fireflies or dust."
+  },
+  "reactive": {
+    "purpose": "Light each pressed key and fade it out."
+  },
+  "ripple": {
+    "purpose": "Send a ring out from each pressed key, horizontally or as a square."
+  },
+  "ripple_square": {
+    "purpose": "Send a square ring out from each pressed key."
+  },
+  "aurora": {
+    "purpose": "Spread soft color bands sideways from pressed keys."
+  },
+  "spectrum": {
+    "purpose": "Show audio frequency bars across the keyboard columns."
+  },
+  "spectrum_mirror": {
+    "purpose": "Show audio bars mirrored out from the center."
+  },
+  "spectrum_sum": {
+    "purpose": "Drive one width of audio level across the whole keyboard."
+  },
+  "key_tint": {
+    "purpose": "Tint keys while they are held down."
+  },
+  "spiral": {
+    "purpose": "Rotate colored arms around the center of the keyboard."
+  },
+  "block_stack": {
+    "purpose": "Animate falling blocks that stack, clear lines and reset."
+  },
+  "key_burst": {
+    "purpose": "Burst outward from each pressed key with a brief flash, trail and afterglow. Audio onset may set params.origin=random_key for a deterministic random key."
+  },
+  "rain": {
+    "purpose": "Fall ambient rain with a built-in night background and bottom splashes."
+  },
+  "fire": {
+    "purpose": "Grow flickering flames from one edge of the surface toward the opposite edge."
+  }
+}

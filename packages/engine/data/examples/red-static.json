@@ -1,0 +1,17 @@
+{
+  "schema": "lep.effect/1",
+  "meta": {
+    "name": "Red",
+    "author": "demo",
+    "generator": "human",
+    "seed": 1
+  },
+  "layer": [
+    {
+      "id": "l1",
+      "component": "static",
+      "surface": { "type": "all" },
+      "color": { "type": "solid", "rgb": [255, 0, 0] }
+    }
+  ]
+}

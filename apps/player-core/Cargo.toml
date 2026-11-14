@@ -1,0 +1,48 @@
+[workspace]
+members = ["crates/core", "crates/ffi", "crates/parity", "crates/openrgb-stub"]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.96"
+license = "Apache-2.0"
+publish = false
+
+[workspace.dependencies]
+rgbprompt-player-core = { path = "crates/core" }
+base64 = "0.22"
+crc32fast = "1.4"
+rquickjs = "0.14"
+rustfft = "6"
+semver = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+sysinfo = { version = "0.40", default-features = false, features = ["system"] }
+thiserror = "2"
+ureq = { version = "3", default-features = false, features = ["rustls", "json"] }
+zip = { version = "9", default-features = false, features = ["deflate"] }
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+
+# Proc macros and build scripts keep the default codegen units: with a single
+# unit the proc-macro dylibs fail to load on this toolchain
+# ("mis-aligned LINKEDIT string pool").
+[profile.release.build-override]
+codegen-units = 16
+# Xcode 27 ld: stripped proc-macro dylibs also fail to load with the same
+# error, so keep host build artifacts unstripped (the shipped lib is unaffected).
+strip = "none"
+
+# The dev profile builds C dependencies at opt-level 0. Unoptimised QuickJS
+# needs >250 ms (HostLimits::step_budget) for the audio presets' catch-up
+# replay (ENGINE §4 audio: up to 2000 ms in 1 ms steps) under x64 emulation on
+# Windows ARM64, which fails Debug playback with `internal` (-1). Optimise the
+# interpreter only; our own crates stay debuggable.
+[profile.dev.package.rquickjs-sys]
+opt-level = 3
+[profile.dev.package.rquickjs-core]
+opt-level = 3

@@ -1,0 +1,25 @@
+{
+  "name": "@rgbprompt/engine",
+  "version": "0.6.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./server": "./src/entries/server.ts",
+    "./web": "./src/entries/web.ts",
+    "./player": "./src/entries/player.ts",
+    "./dist/*": "./dist/*"
+  },
+  "dependencies": {
+    "@rgbprompt/layouts": "workspace:*"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "node --test test/*.test.js"
+  }
+}

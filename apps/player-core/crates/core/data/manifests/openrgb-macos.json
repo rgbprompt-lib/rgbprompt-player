@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "variant": "standard",
+  "version": "1.0",
+  "platform": "macos",
+  "arch": "arm64",
+  "archive": "zip",
+  "size_bytes": 0,
+  "sha256": null,
+  "executable": "OpenRGB.app/Contents/MacOS/OpenRGB",
+  "args": ["--server", "--server-port", "{port}", "--config", "{config_dir}"],
+  "urls": [
+    { "kind": "official", "url": "https://openrgb.org/releases/openrgb-1.0-macos-arm64.zip" },
+    { "kind": "mirror", "url": "https://cdn.rgbprompt.com/player/openrgb/openrgb-1.0-macos-arm64.zip" }
+  ],
+  "license": "GPL-2.0-only",
+  "source": "https://openrgb.org"
+}

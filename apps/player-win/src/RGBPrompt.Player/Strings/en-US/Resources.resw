@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="failure.internal" xml:space="preserve"><value>Something went wrong. Play it again.</value></data>
+  <data name="failure.updateRequired" xml:space="preserve"><value>Update RGBPrompt Player to play this light</value></data>
+  <data name="failure.decodeFailed" xml:space="preserve"><value>This effect can't play right now. The problem was logged.</value></data>
+  <data name="failure.unsupportedPackage" xml:space="preserve"><value>This effect needs a newer Player. Please update and try again.</value></data>
+  <data name="failure.linkUnavailable" xml:space="preserve"><value>This link has expired. Play it again from the website.</value></data>
+  <data name="failure.driverDeclined" xml:space="preserve"><value>Driver installation was cancelled</value></data>
+  <data name="failure.openrgbUnreachable" xml:space="preserve"><value>Couldn't reach the lighting backend</value></data>
+  <data name="failure.deviceLost" xml:space="preserve"><value>The keyboard was disconnected</value></data>
+  <data name="panel.status.connected" xml:space="preserve"><value>Connected · driver ready</value></data>
+  <data name="panel.status.preparing" xml:space="preserve"><value>Preparing…</value></data>
+  <data name="panel.status.driverNeeded" xml:space="preserve"><value>Driver needed</value></data>
+  <data name="panel.status.noKeyboard" xml:space="preserve"><value>Driver ready · no keyboard found</value></data>
+  <data name="panel.status.backendUnresponsive" xml:space="preserve"><value>Backend not responding</value></data>
+  <data name="panel.status.vendorConflict" xml:space="preserve"><value>Vendor software is running</value></data>
+  <data name="panel.status.blocked" xml:space="preserve"><value>Windows blocked the driver</value></data>
+  <data name="panel.status.internalError" xml:space="preserve"><value>Player needs to be reinstalled</value></data>
+  <data name="panel.nowPlaying" xml:space="preserve"><value>Now playing</value></data>
+  <data name="panel.stop" xml:space="preserve"><value>Stop</value></data>
+  <data name="support.perKey" xml:space="preserve"><value>per-key</value></data>
+  <data name="support.zones" xml:space="preserve"><value>zones</value></data>
+  <data name="support.single" xml:space="preserve"><value>single color</value></data>
+  <data name="support.unknown" xml:space="preserve"><value>unknown layout</value></data>
+  <data name="app.name" xml:space="preserve"><value>RGBPrompt Player</value></data>
+  <data name="panel.idle.drop" xml:space="preserve"><value>Nothing playing. Click 'Play on my keyboard' on the website, or open a .lep file.</value></data>
+  <data name="panel.needsDriver.body" xml:space="preserve"><value>Player controls your keyboard lighting through the official OpenRGB. It installs into your user folder and won't replace an OpenRGB you already have.</value></data>
+  <data name="panel.needsDriver.install" xml:space="preserve"><value>Install and play</value></data>
+  <data name="panel.noKeyboard.body" xml:space="preserve"><value>No RGB keyboard found. Plug it in with a cable, then retry.</value></data>
+  <data name="panel.noKeyboard.findAgain" xml:space="preserve"><value>Find again</value></data>
+  <data name="panel.backend.unresponsive.body" xml:space="preserve"><value>Your keyboard keeps its current lighting. Restarting usually takes a few seconds and keeps your driver and effects.</value></data>
+  <data name="panel.backend.restart" xml:space="preserve"><value>Restart backend</value></data>
+  <data name="panel.vendor.fallbackName" xml:space="preserve"><value>Vendor lighting software</value></data>
+  <data name="panel.vendor.running" xml:space="preserve"><value>{0} is running and holds the keyboard.</value></data>
+  <data name="panel.vendor.retry" xml:space="preserve"><value>I closed it, retry</value></data>
+  <data name="panel.blocked.body" xml:space="preserve"><value>Windows blocked the driver. Allow it once, then retry.</value></data>
+  <data name="setup.button.retry" xml:space="preserve"><value>Retry</value></data>
+  <data name="panel.preparing" xml:space="preserve"><value>Preparing…</value></data>
+  <data name="panel.coreUnavailable.body" xml:space="preserve"><value>The Player core does not match this app. Reinstall RGBPrompt Player.</value></data>
+  <data name="panel.footer.settings" xml:space="preserve"><value>Settings…</value></data>
+  <data name="panel.hide" xml:space="preserve"><value>Hide</value></data>
+  <data name="panel.footer.quit" xml:space="preserve"><value>Quit Player</value></data>
+  <data name="panel.keyboard.fallback" xml:space="preserve"><value>Keyboard</value></data>
+  <data name="panel.meta.fpsSupport" xml:space="preserve"><value>{0} · {1} fps · {2}</value></data>
+  <data name="settings.title" xml:space="preserve"><value>RGBPrompt Player · Settings</value></data>
+  <data name="settings.section.status" xml:space="preserve"><value>Status</value></data>
+  <data name="settings.section.preferences" xml:space="preserve"><value>Preferences</value></data>
+  <data name="settings.preference.launchAtLogin" xml:space="preserve"><value>Launch at login</value></data>
+  <data name="settings.sound.system" xml:space="preserve"><value>System sound</value></data>
+  <data name="settings.preference.keyReactive" xml:space="preserve"><value>Key-reactive lighting</value></data>
+  <data name="settings.preference.brightness" xml:space="preserve"><value>Brightness</value></data>
+  <data name="settings.stop.title" xml:space="preserve"><value>When you stop or quit</value></data>
+  <data name="settings.stop.body" xml:space="preserve"><value>Keys go dark. Replug the keyboard to bring back its built-in lighting.</value></data>
+  <data name="settings.footer.copyDiagnostics" xml:space="preserve"><value>Copy diagnostics</value></data>
+  <data name="settings.footer.copied" xml:space="preserve"><value>Copied</value></data>
+  <data name="settings.footer.unavailable" xml:space="preserve"><value>Unavailable</value></data>
+  <data name="settings.footer.version" xml:space="preserve"><value>Player v{0}</value></data>
+  <data name="settings.status.driver" xml:space="preserve"><value>Light driver</value></data>
+  <data name="settings.status.keyboard" xml:space="preserve"><value>Keyboard</value></data>
+  <data name="settings.status.keyboardMissing" xml:space="preserve"><value>Not found</value></data>
+  <data name="tray.openPanel" xml:space="preserve"><value>Open panel</value></data>
+  <data name="tray.tooltip.playing" xml:space="preserve"><value>RGBPrompt Player · Playing</value></data>
+  <data name="tray.tooltip.attention" xml:space="preserve"><value>RGBPrompt Player · Needs attention</value></data>
+  <data name="panel.needsDriver.title" xml:space="preserve"><value>Install the lighting driver (OpenRGB)</value></data>
+  <data name="panel.needsDriver.bullet.summary" xml:space="preserve"><value>Official OpenRGB {0} · about {1} MB</value></data>
+  <data name="panel.needsDriver.bullet.versionOnly" xml:space="preserve"><value>Official OpenRGB {0}</value></data>
+  <data name="panel.needsDriver.bullet.verified" xml:space="preserve"><value>Verified after download (SHA-256)</value></data>
+  <data name="panel.needsDriver.bullet.safe" xml:space="preserve"><value>Never flashes firmware; remove it any time</value></data>
+  <data name="panel.needsDriver.later" xml:space="preserve"><value>Later</value></data>
+  <data name="panel.needsDriver.percent" xml:space="preserve"><value>{0}%</value></data>
+  <data name="panel.noKeyboard.title" xml:space="preserve"><value>Keyboard not found</value></data>
+  <data name="panel.noKeyboard.subtitle" xml:space="preserve"><value>Your effect is ready, but no RGB keyboard was found</value></data>
+  <data name="panel.noKeyboard.check1" xml:space="preserve"><value>Connect the keyboard with a cable (wireless and Bluetooth modes usually can't control lighting)</value></data>
+  <data name="panel.noKeyboard.check2" xml:space="preserve"><value>Quit the keyboard maker's lighting app; it holds on to the device</value></data>
+  <data name="panel.noKeyboard.check3" xml:space="preserve"><value>Unplug it, plug it back in, then click Find again</value></data>
+  <data name="panel.noKeyboard.supported" xml:space="preserve"><value>Supported keyboards</value></data>
+  <data name="panel.noKeyboard.footer" xml:space="preserve"><value>Playback resumes automatically when the keyboard is plugged in</value></data>
+  <data name="panel.noKeyboard.deviceLost" xml:space="preserve"><value>Keyboard disconnected</value></data>
+  <data name="panel.idle.dropHere" xml:space="preserve"><value>Drop a .lep file here</value></data>
+  <data name="panel.drop.release" xml:space="preserve"><value>Release to play</value></data>
+  <data name="panel.chip.audio" xml:space="preserve"><value>Following sound</value></data>
+  <data name="panel.chip.keyOff" xml:space="preserve"><value>Key reaction is off</value></data>
+  <data name="panel.chip.audioOff" xml:space="preserve"><value>Sound is off</value></data>
+  <data name="panel.chip.enable" xml:space="preserve"><value>Turn on</value></data>
+  <data name="panel.more" xml:space="preserve"><value>More</value></data>
+  <data name="panel.footer.playLep" xml:space="preserve"><value>Open .lep file…</value></data>
+  <data name="panel.footer.defaultHandler" xml:space="preserve"><value>Make this the app for rgbprompt:// links</value></data>
+  <data name="settings.preference.language" xml:space="preserve"><value>Language</value></data>
+  <data name="settings.language.chinese" xml:space="preserve"><value>中文</value></data>
+  <data name="settings.language.english" xml:space="preserve"><value>EN</value></data>
+  <data name="settings.status.webLink" xml:space="preserve"><value>Web link</value></data>
+  <data name="settings.status.webRegistered" xml:space="preserve"><value>rgbprompt:// registered</value></data>
+  <data name="settings.status.webMissing" xml:space="preserve"><value>Not registered</value></data>
+  <data name="settings.webLink.makeDefault" xml:space="preserve"><value>Make default</value></data>
+  <data name="settings.footer.checkUpdates" xml:space="preserve"><value>Check for updates</value></data>
+  <data name="settings.status.driverReady" xml:space="preserve"><value>OpenRGB {0} · Ready</value></data>
+  <data name="settings.status.driverExternal" xml:space="preserve"><value>OpenRGB · running on port {0}</value></data>
+  <data name="settings.status.driverMissing" xml:space="preserve"><value>Not installed</value></data>
+  <data name="panel.failure.title" xml:space="preserve"><value>This effect can't play right now</value></data>
+  <data name="panel.failure.line" xml:space="preserve"><value>Your keyboard keeps its current lighting. The problem was logged.</value></data>
+  <data name="panel.createEffect" xml:space="preserve"><value>Create your own effect →</value></data>
+  <data name="panel.backend.copyDiagnostics" xml:space="preserve"><value>Copy diagnostics</value></data>
+  <data name="panel.backend.copied" xml:space="preserve"><value>Diagnostics copied</value></data>
+  <data name="panel.stoppedHint" xml:space="preserve"><value>Keyboard lights are off. Replug the keyboard to bring back its own lighting.</value></data>
+  <data name="setup.unverified.warning" xml:space="preserve"><value>This driver version hasn't been verified yet, so Player won't download it.</value></data>
+  <data name="setup.unverified.external" xml:space="preserve"><value>Already using OpenRGB? Turn on its SDK server (port 6742), then click Retry.</value></data>
+  <data name="setup.button.tryAgain" xml:space="preserve"><value>Try again</value></data>
+  <data name="setup.button.installing" xml:space="preserve"><value>Installing…</value></data>
+  <data name="setup.button.cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="panel.backend.external.title" xml:space="preserve"><value>OpenRGB isn't running</value></data>
+  <data name="panel.backend.external.body" xml:space="preserve"><value>Player was using the OpenRGB you opened yourself (port {0}), and it has quit. Open OpenRGB again with its SDK server on, and Player reconnects automatically.</value></data>
+  <data name="panel.backend.gaveUp.title" xml:space="preserve"><value>The lighting driver keeps quitting</value></data>
+  <data name="panel.backend.gaveUp.body" xml:space="preserve"><value>It quit {0} times in a minute, so Player stopped restarting it. Your keyboard keeps its current lighting.</value></data>
+  <data name="panel.backend.restarting.title" xml:space="preserve"><value>Restarting the lighting driver…</value></data>
+  <data name="panel.backend.restarting.body" xml:space="preserve"><value>The driver quit unexpectedly. Player is restarting it (attempt {0} of {1}). Your keyboard keeps its current lighting.</value></data>
+  <data name="panel.backend.retryNow" xml:space="preserve"><value>Retry now</value></data>
+  <data name="panel.backend.unresponsive.title" xml:space="preserve"><value>Player's background service is stuck</value></data>
+  <data name="panel.backend.waiting" xml:space="preserve"><value>Waiting for OpenRGB…</value></data>
+  <data name="panel.blocked.title" xml:space="preserve"><value>Windows blocked the driver. Confirm once.</value></data>
+  <data name="panel.blocked.line" xml:space="preserve"><value>Allow it once, then try again</value></data>
+  <data name="panel.blocked.retry" xml:space="preserve"><value>I've allowed it, try again</value></data>
+  <data name="panel.coreUnavailable.title" xml:space="preserve"><value>Player needs to be reinstalled</value></data>
+  <data name="panel.footer.reopenVendors" xml:space="preserve"><value>You can reopen {0} after quitting</value></data>
+  <data name="panel.keyboards.header" xml:space="preserve"><value>Keyboard</value></data>
+  <data name="panel.picker.choose" xml:space="preserve"><value>Choose effect</value></data>
+  <data name="panel.picker.create" xml:space="preserve"><value>Create your own effect</value></data>
+  <data name="panel.source.file" xml:space="preserve"><value>Local file</value></data>
+  <data name="panel.source.preset" xml:space="preserve"><value>Built-in effect</value></data>
+  <data name="panel.source.web" xml:space="preserve"><value>From the RGBPrompt website</value></data>
+  <data name="panel.status.ready" xml:space="preserve"><value>Ready</value></data>
+  <data name="panel.status.restartingDriver" xml:space="preserve"><value>Restarting driver</value></data>
+  <data name="panel.status.openrgbNotRunning" xml:space="preserve"><value>OpenRGB not running</value></data>
+  <data name="panel.untitled" xml:space="preserve"><value>Untitled effect</value></data>
+  <data name="panel.vendor.title" xml:space="preserve"><value>{0} is running</value></data>
+  <data name="panel.vendor.body" xml:space="preserve"><value>It controls the keyboard lights too, so RGBPrompt can't reach the keyboard.</value></data>
+  <data name="panel.vendor.step1" xml:space="preserve"><value>Quit {0} (notification area icon → Exit, or Task Manager).</value></data>
+  <data name="panel.vendor.step2" xml:space="preserve"><value>Keys reconnect automatically once it's closed.</value></data>
+  <data name="panel.vendor.step3" xml:space="preserve"><value>You can reopen it after you quit RGBPrompt Player.</value></data>
+  <data name="panel.vendor.openTaskManager" xml:space="preserve"><value>Open Task Manager</value></data>
+  <data name="settings.brightness.value" xml:space="preserve"><value>{0}%</value></data>
+  <data name="settings.launch.hint" xml:space="preserve"><value>Lives in the notification area, not the taskbar</value></data>
+  <data name="settings.preference.sound" xml:space="preserve"><value>Sound source</value></data>
+  <data name="settings.sound.off" xml:space="preserve"><value>Off</value></data>
+  <data name="setup.failed.1" xml:space="preserve"><value>The download failed. Check your connection and try again.</value></data>
+  <data name="setup.failed.2" xml:space="preserve"><value>The downloaded file failed verification and was deleted.</value></data>
+  <data name="setup.failed.3" xml:space="preserve"><value>The driver is installed but didn't start.</value></data>
+</root>

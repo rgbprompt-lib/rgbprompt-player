@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "variant": "tuned",
+  "version": "f81fd32-evision.1",
+  "platform": "windows",
+  "arch": "x64",
+  "archive": "zip",
+  "size_bytes": 22558950,
+  "sha256": "ba9215c7cd327d7c177bfdade8bc26ecccf9d0b3e84bcf3c3d5c8be1daa381e5",
+  "executable": "OpenRGB-RGBPrompt/OpenRGB.exe",
+  "args": ["--server", "--server-port", "{port}", "--config", "{config_dir}"],
+  "urls": [
+    {
+      "kind": "official",
+      "url": "https://github.com/rgbprompt-lib/openrgb-rgbprompt/releases/download/f81fd32-evision.1/OpenRGB-RGBPrompt-windows-x64.zip"
+    }
+  ],
+  "license": "GPL-2.0-only",
+  "source": "https://github.com/rgbprompt-lib/openrgb-rgbprompt"
+}

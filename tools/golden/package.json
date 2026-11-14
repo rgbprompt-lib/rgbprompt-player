@@ -1,0 +1,12 @@
+{
+  "name": "@rgbprompt/golden",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "@rgbprompt/engine": "workspace:*"
+  }
+}

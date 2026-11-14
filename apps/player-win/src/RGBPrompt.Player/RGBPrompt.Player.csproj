@@ -1,0 +1,79 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
+    <RootNamespace>RGBPrompt.Player</RootNamespace>
+    <AssemblyName>RGBPrompt.Player</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Platforms>x64</Platforms>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <WindowsPackageType>None</WindowsPackageType>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <SelfContained>true</SelfContained>
+    <UseWinUI>true</UseWinUI>
+    <!-- Required for dotnet CLI builds of an unpackaged WinUI app: brings the
+         Windows App SDK's own PRI/MSIX tasks (VS-only tasks otherwise). It also
+         picks up Strings\**\*.resw automatically. -->
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
+    <ApplicationIcon>Assets\tray.ico</ApplicationIcon>
+    <Version>0.6.0</Version>
+    <Company>RGBPrompt</Company>
+    <Product>RGBPrompt Player</Product>
+  </PropertyGroup>
+
+  <!-- On Windows ARM64 hosts (Parallels on Apple silicon) the XAML compiler's
+       XBF step exits 1 without a message; ship loose XAML there instead. x64
+       build machines keep XBF. -->
+  <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'Arm64'">
+    <DisableXbfGeneration>true</DisableXbfGeneration>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.250108002" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
+    <PackageReference Include="H.NotifyIcon.WinUI" Version="2.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RGBPrompt.Player.Core\RGBPrompt.Player.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\tray.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <!-- Native core DLL next to the exe (build.ps1 also copies the release build). -->
+    <Content Include="$(RgbpromptPlayerDllDir)\rgbprompt_player.dll"
+             Condition="'$(RgbpromptPlayerDllDir)' != '' and Exists('$(RgbpromptPlayerDllDir)\rgbprompt_player.dll')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>rgbprompt_player.dll</Link>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Same face as the Mac Player; Chinese falls back to the system UI font. -->
+    <Content Include="..\..\..\player-mac\Sources\RGBPromptPlayer\Fonts\SpaceGrotesk-*.ttf"
+             Link="Fonts\%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Panel header mark: the Mac Player's PanelMark asset, linked (not copied). -->
+    <Content Include="..\..\..\player-mac\Sources\RGBPromptPlayer\Assets.xcassets\PanelMark.imageset\PanelMark@3x.png"
+             Link="Assets\PanelMark.png"
+             CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Built-in effects: the Mac Player's Presets folder, linked (not copied) so
+         both platforms ship the same files. -->
+    <Content Include="..\..\..\player-mac\Resources\Presets\*.lep;..\..\..\player-mac\Resources\Presets\*.json"
+             Link="Presets\%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

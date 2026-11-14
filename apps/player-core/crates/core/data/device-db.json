@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "devices": [
+    {
+      "id": "evision-320f-5000-direct",
+      "match": {
+        "name": "EVision Keyboard 320F:5000"
+      },
+      "support": "per_key",
+      "leds": {
+        "Key: Fn": "RGUI"
+      }
+    }
+  ]
+}

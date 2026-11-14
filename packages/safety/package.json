@@ -1,0 +1,29 @@
+{
+  "name": "@rgbprompt/safety",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./player": "./src/entries/player.ts",
+    "./constants.json": "./constants.json",
+    "./vectors/*": "./vectors/*"
+  },
+  "dependencies": {
+    "@rgbprompt/engine": "workspace:*",
+    "@rgbprompt/layouts": "workspace:*"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "bench": "node scripts/bench.mjs",
+    "bench:range": "node scripts/bench-range.mjs",
+    "lint": "eslint .",
+    "srgb-table": "node scripts/gen-srgb-linear.mjs",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "vectors": "node scripts/gen-vectors.mjs"
+  }
+}

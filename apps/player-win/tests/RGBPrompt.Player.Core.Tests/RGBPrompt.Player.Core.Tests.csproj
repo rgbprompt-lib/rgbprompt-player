@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>RGBPrompt.Player.Core.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\RGBPrompt.Player.Core\RGBPrompt.Player.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Same files the Mac Player bundles; one source for both platforms. -->
+    <None Include="..\..\..\player-mac\Resources\Presets\*.lep;..\..\..\player-mac\Resources\Presets\*.json"
+          Link="Presets\%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest" />
+    <!-- Engine ANSI-104 key names (generated on the Mac side). -->
+    <None Include="..\..\..\player-mac\Sources\PlayerKit\Generated\KeyLayout.swift"
+          Link="KeyLayout.swift"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

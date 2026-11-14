@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>RGBPrompt.Player.Core</RootNamespace>
+    <AssemblyName>RGBPrompt.Player.Core</AssemblyName>
+    <Description>Platform-neutral models and routing for the Windows Player shell (PLAYER §9.2).</Description>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+</Project>

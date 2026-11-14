@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="failure.internal" xml:space="preserve"><value>出了点问题，请再播一次。</value></data>
+  <data name="failure.updateRequired" xml:space="preserve"><value>请更新 RGBPrompt Player 后再播放</value></data>
+  <data name="failure.decodeFailed" xml:space="preserve"><value>这个灯效暂时播不了，问题已记录</value></data>
+  <data name="failure.unsupportedPackage" xml:space="preserve"><value>这个灯效需要新版 Player，请更新后再播放</value></data>
+  <data name="failure.linkUnavailable" xml:space="preserve"><value>链接已失效，请从网站再播一次。</value></data>
+  <data name="failure.driverDeclined" xml:space="preserve"><value>已取消驱动安装</value></data>
+  <data name="failure.openrgbUnreachable" xml:space="preserve"><value>连不上灯光后台</value></data>
+  <data name="failure.deviceLost" xml:space="preserve"><value>键盘已断开</value></data>
+  <data name="panel.status.connected" xml:space="preserve"><value>已连接 · 驱动就绪</value></data>
+  <data name="panel.status.preparing" xml:space="preserve"><value>准备中…</value></data>
+  <data name="panel.status.driverNeeded" xml:space="preserve"><value>需要安装驱动</value></data>
+  <data name="panel.status.noKeyboard" xml:space="preserve"><value>驱动就绪 · 未找到键盘</value></data>
+  <data name="panel.status.backendUnresponsive" xml:space="preserve"><value>后台无响应</value></data>
+  <data name="panel.status.vendorConflict" xml:space="preserve"><value>厂商软件正在运行</value></data>
+  <data name="panel.status.blocked" xml:space="preserve"><value>Windows 拦截了驱动</value></data>
+  <data name="panel.status.internalError" xml:space="preserve"><value>Player 需要重新安装</value></data>
+  <data name="panel.nowPlaying" xml:space="preserve"><value>正在播放</value></data>
+  <data name="panel.stop" xml:space="preserve"><value>停止</value></data>
+  <data name="support.perKey" xml:space="preserve"><value>逐键</value></data>
+  <data name="support.zones" xml:space="preserve"><value>分区</value></data>
+  <data name="support.single" xml:space="preserve"><value>单色</value></data>
+  <data name="support.unknown" xml:space="preserve"><value>未知布局</value></data>
+  <data name="app.name" xml:space="preserve"><value>RGBPrompt Player</value></data>
+  <data name="panel.idle.drop" xml:space="preserve"><value>没有正在播放的灯效。在网站点击「在我的键盘上播放」，或打开一个 .lep 文件。</value></data>
+  <data name="panel.needsDriver.body" xml:space="preserve"><value>Player 通过官方 OpenRGB 控制键盘灯。它会装到你的用户目录，不会替换你已有的 OpenRGB。</value></data>
+  <data name="panel.needsDriver.install" xml:space="preserve"><value>安装并播放</value></data>
+  <data name="panel.noKeyboard.body" xml:space="preserve"><value>没找到 RGB 键盘。请用数据线直连后再试。</value></data>
+  <data name="panel.noKeyboard.findAgain" xml:space="preserve"><value>重新查找</value></data>
+  <data name="panel.backend.unresponsive.body" xml:space="preserve"><value>键盘会保持当前灯光。重启后台通常几秒就好，不影响已下载的驱动和灯效。</value></data>
+  <data name="panel.backend.restart" xml:space="preserve"><value>重启后台</value></data>
+  <data name="panel.vendor.fallbackName" xml:space="preserve"><value>厂商灯光软件</value></data>
+  <data name="panel.vendor.running" xml:space="preserve"><value>{0} 正在运行，占用了键盘。</value></data>
+  <data name="panel.vendor.retry" xml:space="preserve"><value>我已关闭，重试</value></data>
+  <data name="panel.blocked.body" xml:space="preserve"><value>Windows 拦截了驱动。请放行一次后再试。</value></data>
+  <data name="setup.button.retry" xml:space="preserve"><value>重试</value></data>
+  <data name="panel.preparing" xml:space="preserve"><value>正在准备…</value></data>
+  <data name="panel.coreUnavailable.body" xml:space="preserve"><value>Player 内核与这个应用不匹配。请重新安装 RGBPrompt Player。</value></data>
+  <data name="panel.footer.settings" xml:space="preserve"><value>设置…</value></data>
+  <data name="panel.hide" xml:space="preserve"><value>隐藏</value></data>
+  <data name="panel.footer.quit" xml:space="preserve"><value>退出 Player</value></data>
+  <data name="panel.keyboard.fallback" xml:space="preserve"><value>键盘</value></data>
+  <data name="panel.meta.fpsSupport" xml:space="preserve"><value>{0} · {1} fps · {2}</value></data>
+  <data name="settings.title" xml:space="preserve"><value>RGBPrompt Player · 设置</value></data>
+  <data name="settings.section.status" xml:space="preserve"><value>状态</value></data>
+  <data name="settings.section.preferences" xml:space="preserve"><value>偏好</value></data>
+  <data name="settings.preference.launchAtLogin" xml:space="preserve"><value>开机时启动</value></data>
+  <data name="settings.sound.system" xml:space="preserve"><value>系统声音</value></data>
+  <data name="settings.preference.keyReactive" xml:space="preserve"><value>按键反应</value></data>
+  <data name="settings.preference.brightness" xml:space="preserve"><value>亮度</value></data>
+  <data name="settings.stop.title" xml:space="preserve"><value>停止或退出时</value></data>
+  <data name="settings.stop.body" xml:space="preserve"><value>键盘灯熄灭。重新插拔键盘即可恢复它自带的灯效。</value></data>
+  <data name="settings.footer.copyDiagnostics" xml:space="preserve"><value>复制诊断信息</value></data>
+  <data name="settings.footer.copied" xml:space="preserve"><value>已复制</value></data>
+  <data name="settings.footer.unavailable" xml:space="preserve"><value>暂不可用</value></data>
+  <data name="settings.footer.version" xml:space="preserve"><value>Player v{0}</value></data>
+  <data name="settings.status.driver" xml:space="preserve"><value>灯光驱动</value></data>
+  <data name="settings.status.keyboard" xml:space="preserve"><value>键盘</value></data>
+  <data name="settings.status.keyboardMissing" xml:space="preserve"><value>未找到</value></data>
+  <data name="tray.openPanel" xml:space="preserve"><value>打开面板</value></data>
+  <data name="tray.tooltip.playing" xml:space="preserve"><value>RGBPrompt Player · 播放中</value></data>
+  <data name="tray.tooltip.attention" xml:space="preserve"><value>RGBPrompt Player · 需要处理</value></data>
+  <data name="panel.needsDriver.title" xml:space="preserve"><value>安装灯光驱动（OpenRGB）</value></data>
+  <data name="panel.needsDriver.bullet.summary" xml:space="preserve"><value>官方 OpenRGB {0} · 约 {1} MB</value></data>
+  <data name="panel.needsDriver.bullet.versionOnly" xml:space="preserve"><value>官方 OpenRGB {0}</value></data>
+  <data name="panel.needsDriver.bullet.verified" xml:space="preserve"><value>下载后校验完整性（SHA-256）</value></data>
+  <data name="panel.needsDriver.bullet.safe" xml:space="preserve"><value>不刷固件，随时可删除</value></data>
+  <data name="panel.needsDriver.later" xml:space="preserve"><value>稍后</value></data>
+  <data name="panel.needsDriver.percent" xml:space="preserve"><value>{0}%</value></data>
+  <data name="panel.noKeyboard.title" xml:space="preserve"><value>没找到键盘</value></data>
+  <data name="panel.noKeyboard.subtitle" xml:space="preserve"><value>灯效准备好了，但还没找到 RGB 键盘</value></data>
+  <data name="panel.noKeyboard.check1" xml:space="preserve"><value>用数据线直连键盘（无线 / 蓝牙模式通常不支持控灯）</value></data>
+  <data name="panel.noKeyboard.check2" xml:space="preserve"><value>关掉键盘厂商的灯光软件，它会占用设备</value></data>
+  <data name="panel.noKeyboard.check3" xml:space="preserve"><value>重新插拔后点「重新查找」</value></data>
+  <data name="panel.noKeyboard.supported" xml:space="preserve"><value>支持的键盘</value></data>
+  <data name="panel.noKeyboard.footer" xml:space="preserve"><value>插上键盘后会自动继续</value></data>
+  <data name="panel.noKeyboard.deviceLost" xml:space="preserve"><value>键盘已断开</value></data>
+  <data name="panel.idle.dropHere" xml:space="preserve"><value>把 .lep 文件拖到这里</value></data>
+  <data name="panel.drop.release" xml:space="preserve"><value>松开即可播放</value></data>
+  <data name="panel.chip.audio" xml:space="preserve"><value>跟随声音</value></data>
+  <data name="panel.chip.keyOff" xml:space="preserve"><value>按键反应未开启</value></data>
+  <data name="panel.chip.audioOff" xml:space="preserve"><value>声音未开启</value></data>
+  <data name="panel.chip.enable" xml:space="preserve"><value>开启</value></data>
+  <data name="panel.more" xml:space="preserve"><value>更多</value></data>
+  <data name="panel.footer.playLep" xml:space="preserve"><value>打开 .lep 文件…</value></data>
+  <data name="panel.footer.defaultHandler" xml:space="preserve"><value>把本应用设为 rgbprompt:// 链接的默认应用</value></data>
+  <data name="settings.preference.language" xml:space="preserve"><value>语言</value></data>
+  <data name="settings.language.chinese" xml:space="preserve"><value>中文</value></data>
+  <data name="settings.language.english" xml:space="preserve"><value>EN</value></data>
+  <data name="settings.status.webLink" xml:space="preserve"><value>网页连接</value></data>
+  <data name="settings.status.webRegistered" xml:space="preserve"><value>rgbprompt:// 已注册</value></data>
+  <data name="settings.status.webMissing" xml:space="preserve"><value>未注册</value></data>
+  <data name="settings.webLink.makeDefault" xml:space="preserve"><value>设为默认</value></data>
+  <data name="settings.footer.checkUpdates" xml:space="preserve"><value>检查更新</value></data>
+  <data name="settings.status.driverReady" xml:space="preserve"><value>OpenRGB {0} · 已就绪</value></data>
+  <data name="settings.status.driverExternal" xml:space="preserve"><value>OpenRGB · 端口 {0} 运行中</value></data>
+  <data name="settings.status.driverMissing" xml:space="preserve"><value>未安装</value></data>
+  <data name="panel.failure.title" xml:space="preserve"><value>这个灯效暂时播不了</value></data>
+  <data name="panel.failure.line" xml:space="preserve"><value>键盘保持当前灯光，问题已记录。</value></data>
+  <data name="panel.createEffect" xml:space="preserve"><value>创作你自己的灯效 →</value></data>
+  <data name="panel.backend.copyDiagnostics" xml:space="preserve"><value>复制诊断信息</value></data>
+  <data name="panel.backend.copied" xml:space="preserve"><value>诊断信息已复制</value></data>
+  <data name="panel.stoppedHint" xml:space="preserve"><value>键盘灯已关闭。重新插拔键盘可恢复它自带的灯效。</value></data>
+  <data name="setup.unverified.warning" xml:space="preserve"><value>这个驱动版本还没有通过校验，Player 不会下载它。</value></data>
+  <data name="setup.unverified.external" xml:space="preserve"><value>如果你已经在用 OpenRGB：打开它的 SDK 服务器（端口 6742），然后点「重试」。</value></data>
+  <data name="setup.button.tryAgain" xml:space="preserve"><value>再试一次</value></data>
+  <data name="setup.button.installing" xml:space="preserve"><value>安装中…</value></data>
+  <data name="setup.button.cancel" xml:space="preserve"><value>取消</value></data>
+  <data name="panel.backend.external.title" xml:space="preserve"><value>OpenRGB 未运行</value></data>
+  <data name="panel.backend.external.body" xml:space="preserve"><value>Player 在用你自己打开的 OpenRGB（端口 {0}），它已经退出。重新打开 OpenRGB 并开启 SDK 服务器，Player 会自动重新连接。</value></data>
+  <data name="panel.backend.gaveUp.title" xml:space="preserve"><value>灯光驱动反复退出</value></data>
+  <data name="panel.backend.gaveUp.body" xml:space="preserve"><value>1 分钟内退出了 {0} 次，已停止自动重启。键盘会保持当前灯光。</value></data>
+  <data name="panel.backend.restarting.title" xml:space="preserve"><value>正在重启灯光驱动…</value></data>
+  <data name="panel.backend.restarting.body" xml:space="preserve"><value>驱动意外退出了，Player 正在自动重启（第 {0}/{1} 次）。键盘会保持当前灯光。</value></data>
+  <data name="panel.backend.retryNow" xml:space="preserve"><value>立即重试</value></data>
+  <data name="panel.backend.unresponsive.title" xml:space="preserve"><value>Player 的后台卡住了</value></data>
+  <data name="panel.backend.waiting" xml:space="preserve"><value>正在等待 OpenRGB…</value></data>
+  <data name="panel.blocked.title" xml:space="preserve"><value>Windows 拦下了驱动，确认一次就好</value></data>
+  <data name="panel.blocked.line" xml:space="preserve"><value>放行一次就好</value></data>
+  <data name="panel.blocked.retry" xml:space="preserve"><value>我已放行，再试一次</value></data>
+  <data name="panel.coreUnavailable.title" xml:space="preserve"><value>Player 需要重新安装</value></data>
+  <data name="panel.footer.reopenVendors" xml:space="preserve"><value>退出后可以重新打开 {0}</value></data>
+  <data name="panel.keyboards.header" xml:space="preserve"><value>键盘</value></data>
+  <data name="panel.picker.choose" xml:space="preserve"><value>选择灯效</value></data>
+  <data name="panel.picker.create" xml:space="preserve"><value>创作你自己的灯效</value></data>
+  <data name="panel.source.file" xml:space="preserve"><value>本地文件</value></data>
+  <data name="panel.source.preset" xml:space="preserve"><value>内置灯效</value></data>
+  <data name="panel.source.web" xml:space="preserve"><value>来自 RGBPrompt 网页</value></data>
+  <data name="panel.status.ready" xml:space="preserve"><value>就绪</value></data>
+  <data name="panel.status.restartingDriver" xml:space="preserve"><value>正在重启驱动</value></data>
+  <data name="panel.status.openrgbNotRunning" xml:space="preserve"><value>OpenRGB 未运行</value></data>
+  <data name="panel.untitled" xml:space="preserve"><value>未命名灯效</value></data>
+  <data name="panel.vendor.title" xml:space="preserve"><value>{0} 正在运行</value></data>
+  <data name="panel.vendor.body" xml:space="preserve"><value>它也在控制键盘灯，所以 RGBPrompt 连不上键盘。</value></data>
+  <data name="panel.vendor.step1" xml:space="preserve"><value>退出 {0}（通知区域图标 → 退出，或在「任务管理器」里结束）。</value></data>
+  <data name="panel.vendor.step2" xml:space="preserve"><value>关掉后键盘会自动重新连接。</value></data>
+  <data name="panel.vendor.step3" xml:space="preserve"><value>退出 RGBPrompt Player 后可以再打开它。</value></data>
+  <data name="panel.vendor.openTaskManager" xml:space="preserve"><value>打开任务管理器</value></data>
+  <data name="settings.brightness.value" xml:space="preserve"><value>{0}%</value></data>
+  <data name="settings.launch.hint" xml:space="preserve"><value>放在通知区域，不占任务栏</value></data>
+  <data name="settings.preference.sound" xml:space="preserve"><value>声音来源</value></data>
+  <data name="settings.sound.off" xml:space="preserve"><value>关闭</value></data>
+  <data name="setup.failed.1" xml:space="preserve"><value>下载失败，请检查网络后再试。</value></data>
+  <data name="setup.failed.2" xml:space="preserve"><value>下载的文件没有通过校验，已删除。</value></data>
+  <data name="setup.failed.3" xml:space="preserve"><value>驱动装好了，但没能启动。</value></data>
+</root>

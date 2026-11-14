@@ -1,0 +1,427 @@
+{
+  "static": {
+    "displayName": {
+      "en": "Solid",
+      "zh-CN": "纯色"
+    },
+    "icon": "static",
+    "tags": ["mono", "focus"],
+    "speed": {
+      "params": [],
+      "inverse": false
+    },
+    "direction": null,
+    "colorSlots": ["color"],
+    "requiresInput": null,
+    "flashRisk": "low",
+    "space": "logical"
+  },
+  "gradient": {
+    "displayName": {
+      "en": "Gradient",
+      "zh-CN": "渐变"
+    },
+    "icon": "gradient",
+    "tags": ["ambient", "mono"],
+    "speed": {
+      "params": [],
+      "inverse": false
+    },
+    "direction": "axis",
+    "colorSlots": ["color"],
+    "requiresInput": null,
+    "flashRisk": "low",
+    "space": "logical"
+  },
+  "breath": {
+    "displayName": {
+      "en": "Breathing",
+      "zh-CN": "呼吸"
+    },
+    "icon": "breath",
+    "tags": ["ambient", "focus"],
+    "speed": {
+      "params": ["period_ms"],
+      "inverse": true
+    },
+    "direction": null,
+    "colorSlots": ["color"],
+    "requiresInput": null,
+    "flashRisk": "low",
+    "space": "logical"
+  },
+  "blink": {
+    "displayName": {
+      "en": "Blink",
+      "zh-CN": "闪烁"
+    },
+    "icon": "blink",
+    "tags": ["festive", "gaming"],
+    "speed": {
+      "params": ["on_ms", "off_ms"],
+      "inverse": true
+    },
+    "direction": null,
+    "colorSlots": ["color"],
+    "requiresInput": null,
+    "flashRisk": "high",
+    "space": "logical"
+  },
+  "rainbow_wave": {
+    "displayName": {
+      "en": "Rainbow Wave",
+      "zh-CN": "彩虹流动"
+    },
+    "icon": "rainbow_wave",
+    "tags": ["ambient", "festive"],
+    "speed": {
+      "params": ["period_ms"],
+      "inverse": true
+    },
+    "direction": "direction",
+    "colorSlots": ["palette"],
+    "requiresInput": null,
+    "flashRisk": "medium",
+    "space": "logical"
+  },
+  "wave": {
+    "displayName": {
+      "en": "Wave",
+      "zh-CN": "波浪"
+    },
+    "icon": "wave",
+    "tags": ["ambient", "focus"],
+    "speed": {
+      "params": ["period_ms"],
+      "inverse": true
+    },
+    "direction": "direction",
+    "colorSlots": ["color"],
+    "requiresInput": null,
+    "flashRisk": "medium",
+    "space": "logical"
+  },
+  "scroll": {
+    "displayName": {
+      "en": "Scroll",
+      "zh-CN": "跑马灯"
+    },
+    "icon": "scroll",
+    "tags": ["gaming", "ambient"],
+    "speed": {
+      "params": ["period_ms"],
+      "inverse": true
+    },
+    "direction": "direction",
+    "colorSlots": ["color"],
+    "requiresInput": null,
+    "flashRisk": "medium",
+    "space": "logical"
+  },
+  "sparkle": {
+    "displayName": {
+      "en": "Sparkle",
+      "zh-CN": "星火"
+    },
+    "icon": "sparkle",
+    "tags": ["festive", "ambient"],
+    "speed": {
+      "params": ["decay_ms"],
+      "inverse": true
+    },
+    "direction": null,
+    "colorSlots": ["palette"],
+    "requiresInput": null,
+    "flashRisk": "medium",
+    "space": "logical"
+  },
+  "drift": {
+    "displayName": {
+      "en": "Drift",
+      "zh-CN": "漂浮"
+    },
+    "icon": "drift",
+    "tags": ["nature", "ambient"],
+    "speed": {
+      "params": ["period_ms"],
+      "inverse": true
+    },
+    "direction": "direction",
+    "colorSlots": ["color"],
+    "requiresInput": null,
+    "flashRisk": "low",
+    "space": "logical"
+  },
+  "ring": {
+    "displayName": {
+      "en": "Rings",
+      "zh-CN": "扩散圆环"
+    },
+    "icon": "ring",
+    "tags": ["ambient", "festive"],
+    "speed": {
+      "params": ["period_ms"],
+      "inverse": true
+    },
+    "direction": "direction",
+    "colorSlots": ["palette"],
+    "requiresInput": null,
+    "flashRisk": "medium",
+    "space": "logical"
+  },
+  "key_ring": {
+    "displayName": {
+      "en": "Key Ripple",
+      "zh-CN": "按键涟漪"
+    },
+    "icon": "key_ring",
+    "tags": ["interactive", "nature"],
+    "speed": {
+      "params": ["life_ms"],
+      "inverse": true
+    },
+    "direction": "direction",
+    "colorSlots": ["color"],
+    "requiresInput": "key",
+    "flashRisk": "medium",
+    "space": "logical"
+  },
+  "mote": {
+    "displayName": {
+      "en": "Motes",
+      "zh-CN": "光尘"
+    },
+    "icon": "mote",
+    "tags": ["nature", "ambient"],
+    "speed": {
+      "params": ["period_ms"],
+      "inverse": true
+    },
+    "direction": "direction",
+    "colorSlots": ["color", "palette"],
+    "requiresInput": null,
+    "flashRisk": "low",
+    "space": "logical"
+  },
+  "reactive": {
+    "displayName": {
+      "en": "Reactive",
+      "zh-CN": "按键响应"
+    },
+    "icon": "reactive",
+    "tags": ["interactive", "gaming"],
+    "speed": {
+      "params": ["speed"],
+      "inverse": false
+    },
+    "direction": null,
+    "colorSlots": ["color", "palette"],
+    "requiresInput": "key",
+    "flashRisk": "low",
+    "space": "logical"
+  },
+  "ripple": {
+    "displayName": {
+      "en": "Ripple",
+      "zh-CN": "按键波纹"
+    },
+    "icon": "ripple",
+    "tags": ["interactive", "nature"],
+    "speed": {
+      "params": ["speed"],
+      "inverse": false
+    },
+    "direction": "direction",
+    "colorSlots": ["color"],
+    "requiresInput": "key",
+    "flashRisk": "medium",
+    "space": "logical"
+  },
+  "ripple_square": {
+    "displayName": {
+      "en": "Square Ripple",
+      "zh-CN": "方形波纹"
+    },
+    "icon": "ripple_square",
+    "tags": ["interactive", "gaming"],
+    "speed": {
+      "params": ["speed"],
+      "inverse": false
+    },
+    "direction": null,
+    "colorSlots": ["color"],
+    "requiresInput": "key",
+    "flashRisk": "medium",
+    "space": "logical"
+  },
+  "aurora": {
+    "displayName": {
+      "en": "Aurora",
+      "zh-CN": "极光"
+    },
+    "icon": "aurora",
+    "tags": ["interactive", "nature"],
+    "speed": {
+      "params": ["speed"],
+      "inverse": false
+    },
+    "direction": null,
+    "colorSlots": ["palette"],
+    "requiresInput": "key",
+    "flashRisk": "medium",
+    "space": "logical"
+  },
+  "spectrum": {
+    "displayName": {
+      "en": "Spectrum",
+      "zh-CN": "频谱"
+    },
+    "icon": "spectrum",
+    "tags": ["music", "interactive"],
+    "speed": {
+      "params": ["peak_ms"],
+      "inverse": true
+    },
+    "direction": null,
+    "colorSlots": ["palette"],
+    "requiresInput": "audio",
+    "flashRisk": "high",
+    "space": "logical"
+  },
+  "spectrum_mirror": {
+    "displayName": {
+      "en": "Mirror Spectrum",
+      "zh-CN": "镜像频谱"
+    },
+    "icon": "spectrum_mirror",
+    "tags": ["music", "interactive"],
+    "speed": {
+      "params": [],
+      "inverse": false
+    },
+    "direction": null,
+    "colorSlots": ["palette"],
+    "requiresInput": "audio",
+    "flashRisk": "high",
+    "space": "logical"
+  },
+  "spectrum_sum": {
+    "displayName": {
+      "en": "Sum Spectrum",
+      "zh-CN": "整体频谱"
+    },
+    "icon": "spectrum_sum",
+    "tags": ["music", "interactive"],
+    "speed": {
+      "params": [],
+      "inverse": false
+    },
+    "direction": null,
+    "colorSlots": ["palette"],
+    "requiresInput": "audio",
+    "flashRisk": "high",
+    "space": "logical"
+  },
+  "key_tint": {
+    "displayName": {
+      "en": "Key Tint",
+      "zh-CN": "按键染色"
+    },
+    "icon": "key_tint",
+    "tags": ["interactive", "mono"],
+    "speed": {
+      "params": [],
+      "inverse": false
+    },
+    "direction": null,
+    "colorSlots": ["palette"],
+    "requiresInput": "key",
+    "flashRisk": "low",
+    "space": "logical"
+  },
+  "spiral": {
+    "displayName": {
+      "en": "Spiral",
+      "zh-CN": "螺旋"
+    },
+    "icon": "spiral",
+    "tags": ["ambient", "gaming"],
+    "speed": {
+      "params": ["period_ms"],
+      "inverse": true
+    },
+    "direction": "direction",
+    "colorSlots": ["palette", "color"],
+    "requiresInput": null,
+    "flashRisk": "medium",
+    "space": "logical"
+  },
+  "block_stack": {
+    "displayName": {
+      "en": "Block Stack",
+      "zh-CN": "方块堆叠"
+    },
+    "icon": "block_stack",
+    "tags": ["gaming", "festive"],
+    "speed": {
+      "params": ["step_ms"],
+      "inverse": true
+    },
+    "direction": null,
+    "colorSlots": ["color", "palette"],
+    "requiresInput": null,
+    "flashRisk": "medium",
+    "space": "logical"
+  },
+  "key_burst": {
+    "displayName": {
+      "en": "Key Burst",
+      "zh-CN": "按键迸发"
+    },
+    "icon": "key_burst",
+    "tags": ["interactive", "gaming"],
+    "speed": {
+      "params": ["life_ms"],
+      "inverse": true
+    },
+    "direction": null,
+    "colorSlots": ["color", "palette"],
+    "requiresInput": "key",
+    "flashRisk": "high",
+    "space": "physical"
+  },
+  "rain": {
+    "displayName": {
+      "en": "Rain",
+      "zh-CN": "雨滴"
+    },
+    "icon": "rain",
+    "tags": ["nature", "ambient"],
+    "speed": {
+      "params": ["fall_min_ms", "fall_max_ms"],
+      "inverse": true
+    },
+    "direction": null,
+    "colorSlots": ["color"],
+    "requiresInput": null,
+    "flashRisk": "low",
+    "space": "physical"
+  },
+  "fire": {
+    "displayName": {
+      "en": "Fire",
+      "zh-CN": "火焰"
+    },
+    "icon": "fire",
+    "tags": ["nature", "ambient"],
+    "speed": {
+      "params": ["step_ms"],
+      "inverse": true
+    },
+    "direction": "direction",
+    "colorSlots": ["color"],
+    "requiresInput": null,
+    "flashRisk": "medium",
+    "space": "logical"
+  }
+}

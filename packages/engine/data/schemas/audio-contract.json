@@ -1,0 +1,50 @@
+{
+  "package_version": 14,
+  "extended_package_version": 15,
+  "time_flag": 64,
+  "timeout_ms": 300,
+  "max_response_ms": 2000,
+  "extended_response_ms": 8000,
+  "max_instances": 8,
+  "sources": {
+    "level": [0, 22],
+    "bass": [0, 5],
+    "mid": [5, 14],
+    "treble": [14, 22]
+  },
+  "analysis": {
+    "fft_size": 2048,
+    "min_hz": 40,
+    "max_hz": 16000,
+    "smoothing": 0.8,
+    "min_decibels": -100,
+    "max_decibels": -30
+  },
+  "brightness_max": 1000,
+  "motion_rate_max": 4000,
+  "motion_components": ["breath", "blink", "rainbow_wave", "wave", "scroll", "spiral", "ring"],
+  "instance_components": {
+    "key_ring": "max_waves",
+    "key_burst": "max_bursts"
+  },
+  "onset": {
+    "threshold": 128,
+    "hysteresis": 24,
+    "min_interval_ms": 150,
+    "interval_min": 30,
+    "interval_max": 2000
+  },
+  "detectors": ["level", "flux"],
+  "flux": {
+    "grid_ms": 40,
+    "slow_q8": 73,
+    "mean_q8": 10,
+    "floor": 10,
+    "sensitivity": 20,
+    "sensitivity_min": 10,
+    "sensitivity_max": 40
+  },
+  "impulse": {
+    "release_min": 1
+  }
+}

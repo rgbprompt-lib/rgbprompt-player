@@ -1,0 +1,34 @@
+{
+  "schema": "lep.effect/1",
+  "meta": {
+    "name": "Party",
+    "author": "bob",
+    "generator": "human",
+    "seed": 7
+  },
+  "layer": [
+    {
+      "id": "bg",
+      "component": "static",
+      "surface": { "type": "all" },
+      "color": { "type": "solid", "rgb": [0, 0, 0] }
+    },
+    {
+      "id": "rx",
+      "component": "reactive",
+      "surface": { "type": "all" },
+      "trigger": { "type": "key_press" },
+      "color": { "type": "random", "palette": "rainbow24" },
+      "blend": "add",
+      "params": { "speed": 2 }
+    },
+    {
+      "id": "sp",
+      "component": "spectrum",
+      "surface": { "type": "cols" },
+      "trigger": { "type": "audio" },
+      "blend": "max",
+      "params": { "gain": 32, "palette": "rainbow24" }
+    }
+  ]
+}

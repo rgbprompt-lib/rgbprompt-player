@@ -1,0 +1,18 @@
+[package]
+name = "rgbprompt-player"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lib]
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[dependencies]
+rgbprompt-player-core.workspace = true
+
+[dev-dependencies]
+base64.workspace = true
+cbindgen = "0.29"
+serde_json.workspace = true

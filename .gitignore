@@ -1,0 +1,17 @@
+.DS_Store
+.idea/
+.vscode/*
+node_modules/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+.env
+.env.*
+.build/
+target/
+apps/player-core/fixtures/golden/
+*.xcuserstate
+*.xcodeproj/
+apps/player-win/**/bin/
+apps/player-win/**/obj/

@@ -1,0 +1,4 @@
+module RGBPromptPlayerCore {
+    header "../../player-core/include/rgbprompt_player.h"
+    export *
+}

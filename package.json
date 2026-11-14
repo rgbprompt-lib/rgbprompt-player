@@ -1,0 +1,44 @@
+{
+  "name": "rgbprompt-player",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "build:bundles": "pnpm --filter @rgbprompt/engine build && pnpm --filter @rgbprompt/safety build",
+    "lint": "pnpm -r --workspace-concurrency=1 --filter '!rgbprompt-player' run lint",
+    "typecheck": "pnpm -r --workspace-concurrency=1 --filter '!rgbprompt-player' run typecheck",
+    "test": "pnpm -r --workspace-concurrency=1 --filter '!rgbprompt-player' run test",
+    "format:check": "prettier --check .",
+    "check": "pnpm run format:check && pnpm run lint && pnpm run typecheck && pnpm run test && pnpm run golden && pnpm run golden:cadence:strict",
+    "golden": "node tools/golden/cli.mjs verify",
+    "golden:update": "node tools/golden/cli.mjs update",
+    "golden:coverage": "node tools/golden/cli.mjs coverage",
+    "golden:cadence": "node tools/golden/cli.mjs cadence",
+    "golden:cadence:strict": "node tools/golden/cli.mjs cadence --strict",
+    "player:fixtures": "node tools/golden/player-fixtures.mjs",
+    "player:parity": "corepack pnpm --filter @rgbprompt/engine build && corepack pnpm --filter @rgbprompt/safety build && node tools/golden/player-fixtures.mjs && cd apps/player-core && cargo run --release -p parity -- golden && cargo run --release -p parity -- limiter",
+    "player:check:win": "cd apps/player-core && cargo build --workspace --target x86_64-pc-windows-gnu",
+    "player:prepare:win": "bash tools/win/prepare-mac.sh",
+    "player:header": "cd apps/player-core && RGBP_BLESS=1 cargo test -p rgbprompt-player --test header",
+    "player:smoke": "bash tools/player/smoke.sh",
+    "player:driver:e2e": "bash tools/player/driver-e2e.sh",
+    "player:probe:openrgb": "cd apps/player-core && cargo run --release -p parity -- openrgb-probe",
+    "player:core:mac": "bash tools/player/build-core-mac.sh",
+    "player:mac:build": "bash tools/player/build-mac.sh",
+    "player:mac:test": "bash tools/player/test-mac.sh",
+    "player:mac:layout": "node tools/player/gen-mac-layout.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "eslint": "9.39.5",
+    "prettier": "3.9.10",
+    "typescript": "5.9.2",
+    "typescript-eslint": "8.72.1",
+    "vitest": "5.1.0"
+  }
+}

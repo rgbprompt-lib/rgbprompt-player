@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "apps": [
+    { "name": "Corsair iCUE", "platforms": ["windows"], "process": ["iCUE.exe"] },
+    {
+      "name": "Razer Synapse",
+      "platforms": ["windows"],
+      "process": ["Razer Synapse.exe", "RazerCentralService.exe"]
+    },
+    { "name": "Razer Synapse", "platforms": ["macos"], "process": ["Razer Synapse"] },
+    { "name": "ASUS Armoury Crate", "platforms": ["windows"], "process": ["ArmouryCrate*"] },
+    { "name": "Logitech G HUB", "platforms": ["windows"], "process": ["lghub*"] },
+    { "name": "Logitech G HUB", "platforms": ["macos"], "process": ["lghub*"] },
+    { "name": "SteelSeries GG", "platforms": ["windows"], "process": ["SteelSeriesGG*"] },
+    { "name": "Logitech Options+", "platforms": ["macos"], "process": ["Logi Options+"] }
+  ]
+}

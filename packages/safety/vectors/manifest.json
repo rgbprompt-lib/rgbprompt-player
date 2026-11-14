@@ -1,0 +1,64 @@
+{
+  "fps": 25,
+  "step_ms": 40,
+  "frame_bytes": 312,
+  "vectors": [
+    {
+      "id": "beats-128",
+      "description": "128 BPM heavy beat",
+      "file": "beats-128.frames.bin",
+      "frames": 250,
+      "input_sha256": "50f3538600be9a7794824902401d75728fe8f402fb6bf9b59fde0ce654cf76b7",
+      "output_sha256": "50f3538600be9a7794824902401d75728fe8f402fb6bf9b59fde0ce654cf76b7",
+      "max_flashes_per_window": { "before": { "general": 3, "red": 0 }, "after": { "general": 3, "red": 0 } }
+    },
+    {
+      "id": "beats-160",
+      "description": "160 BPM heavy beat",
+      "file": "beats-160.frames.bin",
+      "frames": 250,
+      "input_sha256": "7834e10ef08f8d11080e5b6d4e06ed1bc7daabf5dba482bc8beac4d347e94530",
+      "output_sha256": "7834e10ef08f8d11080e5b6d4e06ed1bc7daabf5dba482bc8beac4d347e94530",
+      "max_flashes_per_window": { "before": { "general": 3, "red": 0 }, "after": { "general": 3, "red": 0 } }
+    },
+    {
+      "id": "fast-typing",
+      "description": "continuous fast typing",
+      "file": "fast-typing.frames.bin",
+      "frames": 250,
+      "input_sha256": "9663c86780d4170c3056e2b811963dc23cda4a6020195d4bd53c44d770e0cf75",
+      "output_sha256": "9663c86780d4170c3056e2b811963dc23cda4a6020195d4bd53c44d770e0cf75",
+      "max_flashes_per_window": { "before": { "general": 1, "red": 0 }, "after": { "general": 1, "red": 0 } }
+    },
+    {
+      "id": "noise-seeded",
+      "description": "seeded random noise",
+      "file": "noise-seeded.frames.bin",
+      "frames": 250,
+      "input_sha256": "5d10a0737a8138006da7e1184ac3e312362f09f70b49194d29c325d2d4b46837",
+      "output_sha256": "5d10a0737a8138006da7e1184ac3e312362f09f70b49194d29c325d2d4b46837",
+      "max_flashes_per_window": { "before": { "general": 8, "red": 0 }, "after": { "general": 8, "red": 0 } }
+    },
+    {
+      "id": "reverse-3hz",
+      "description": "smooth 3 Hz pulse",
+      "file": "reverse-3hz.frames.bin",
+      "frames": 250,
+      "input_sha256": "a0d0959d25fde3ef0f58f108e758bbe2a7ec7a0f86745ecf15d55dfce179db58",
+      "output_sha256": "a0d0959d25fde3ef0f58f108e758bbe2a7ec7a0f86745ecf15d55dfce179db58",
+      "max_flashes_per_window": { "before": { "general": 3, "red": 0 }, "after": { "general": 3, "red": 0 } }
+    },
+    {
+      "id": "strobe-10hz",
+      "description": "10 Hz full-brightness strobe",
+      "file": "strobe-10hz.frames.bin",
+      "frames": 250,
+      "input_sha256": "0821e315381175c32158c852a97c2303e5121b5ec9da039e0b4e7b0546ffe973",
+      "output_sha256": "0821e315381175c32158c852a97c2303e5121b5ec9da039e0b4e7b0546ffe973",
+      "max_flashes_per_window": {
+        "before": { "general": 10, "red": 0 },
+        "after": { "general": 10, "red": 0 }
+      }
+    }
+  ]
+}

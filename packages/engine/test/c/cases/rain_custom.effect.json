@@ -1,0 +1,37 @@
+{
+  "schema": "lep.effect/1",
+  "meta": {
+    "name": "rain custom",
+    "author": "test",
+    "generator": "human",
+    "seed": 7,
+    "region_profile": "ansi104-v1",
+    "motion_profile": "physical-v1"
+  },
+  "layer": [
+    {
+      "id": "rain",
+      "component": "rain",
+      "surface": {
+        "type": "all"
+      },
+      "color": {
+        "type": "ramp",
+        "axis": "x",
+        "colors": [
+          [81, 179, 246],
+          [246, 81, 191],
+          [168, 216, 240],
+          [25, 75, 240],
+          [255, 45, 190]
+        ]
+      },
+      "blend": "replace",
+      "params": {},
+      "time": {
+        "type": "breath",
+        "min_level": 48
+      }
+    }
+  ]
+}

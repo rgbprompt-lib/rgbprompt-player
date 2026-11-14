@@ -1,0 +1,16 @@
+{
+  "window_ms": 1000,
+  "max_transitions": 6,
+  "flash_amplitude": 0.1,
+  "dark_threshold": 0.8,
+  "red_ratio": 0.8,
+  "red_amplitude": 0.2,
+  "block_rows": 2,
+  "block_cols": 4,
+  "small_flash_key_fraction": 0.25,
+  "luminance_max": 65535,
+  "luminance_weights": [13933, 46871, 4732],
+  "luminance_weight_denominator": 65536,
+  "srgb_table_scale": 65535,
+  "geometry_unit_scale": 4
+}

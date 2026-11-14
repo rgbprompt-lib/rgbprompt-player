@@ -1,0 +1,271 @@
+{
+  "version": 1,
+  "note": "Single source for the compact binary layer encoding shared by tools/lepc and the firmware C interpreter. Every param is encoded as one u16. Enum/bool values are encoded to their numeric code here.",
+  "enums": {
+    "blend": {
+      "replace": 0,
+      "add": 1,
+      "max": 2,
+      "mask": 3
+    },
+    "colorType": {
+      "none": 0,
+      "solid": 1,
+      "palette_index": 2,
+      "ramp": 3,
+      "hue_cycle": 4,
+      "random": 5,
+      "from_input": 6
+    },
+    "palette": {
+      "rainbow24": 0,
+      "seven": 1,
+      "custom": 2
+    },
+    "axis": {
+      "x": 0,
+      "y": 1,
+      "radial": 2
+    },
+    "timeType": {
+      "static": 0,
+      "breath": 1,
+      "blink": 2,
+      "phase_scroll": 3,
+      "ease": 4
+    },
+    "easing": {
+      "sine": 0,
+      "linear": 1,
+      "pulse": 2
+    },
+    "direction": {
+      "forward": 0,
+      "reverse": 1,
+      "horizontal": 0,
+      "vertical": 1,
+      "square": 2
+    },
+    "trigger": {
+      "always": 0,
+      "periodic": 1,
+      "key_press": 2,
+      "key_hold": 3,
+      "key_release": 4,
+      "audio": 5,
+      "state": 6
+    },
+    "orientation": {
+      "vertical": 0,
+      "horizontal": 1
+    },
+    "source": {
+      "key_press": 0,
+      "audio": 1,
+      "key_hold": 2
+    },
+    "driftMotion": {
+      "horizontal": 0,
+      "vertical": 1,
+      "both": 2
+    },
+    "ringOrigin": {
+      "event_key": 0,
+      "board_center": 1,
+      "random_key": 2
+    },
+    "ringEnvelope": {
+      "fade_out": 0,
+      "constant": 1,
+      "fade_in": 2,
+      "fade_in_out": 3
+    },
+    "waveWrap": {
+      "seamless": 0,
+      "reset": 1
+    },
+    "fireDirection": {
+      "up": 0,
+      "down": 1,
+      "left": 2,
+      "right": 3
+    },
+    "reactiveColorMode": {
+      "fixed": 0,
+      "lifecycle": 1
+    },
+    "waveAxis": {
+      "x": 0,
+      "y": 1,
+      "angle": 2,
+      "uniform": 3
+    },
+    "waveSpatialDirection": {
+      "forward": 0,
+      "reverse": 1,
+      "mirror": 2,
+      "mirror_reverse": 3
+    }
+  },
+  "valueTypes": {
+    "period_ms": "u16",
+    "phase_ms": "u16",
+    "min_level": "u8",
+    "easing": "enum:easing",
+    "on_ms": "u16",
+    "off_ms": "u16",
+    "soft": "bool",
+    "axis": "enum:axis",
+    "direction": "enum:direction",
+    "palette": "enum:palette",
+    "wavelength": "u8",
+    "width": "u8",
+    "rate": "u8",
+    "decay_ms": "u16",
+    "speed": "u8",
+    "max_waves": "u8",
+    "decay": "u8",
+    "bands": "u8",
+    "orientation": "enum:orientation",
+    "gain": "u8",
+    "fps": "u8",
+    "loop": "bool",
+    "event": "u8",
+    "anim_ref": "u8",
+    "attack_ms": "u16",
+    "release_ms": "u16",
+    "peak_ms": "u16",
+    "dense": "bool",
+    "beat": "bool",
+    "arms": "u8",
+    "twist": "u16",
+    "beam": "u16",
+    "soft_edge": "u16",
+    "count": "u8",
+    "size": "u8",
+    "wobble": "u8",
+    "motion": "enum:driftMotion",
+    "life_ms": "u16",
+    "max_radius": "u8",
+    "step_ms": "u16",
+    "width_tenths": "u8",
+    "softness_tenths": "u8",
+    "afterglow_ms": "u16",
+    "flash_ms": "u8",
+    "max_bursts": "u8",
+    "fall_min_ms": "u16",
+    "fall_max_ms": "u16",
+    "drops_per_second": "u8",
+    "shower_period_s": "u8",
+    "shower_extra": "u8",
+    "tail_first": "u8",
+    "tail_second": "u8",
+    "splash_ms": "u16",
+    "width_pct": "u16",
+    "wrap": "enum:waveWrap",
+    "angle_deg": "u16",
+    "duration_ms": "u16",
+    "color_twist": "u16",
+    "center_x": "u16",
+    "center_y": "u16",
+    "cooling": "u8",
+    "sparking": "u8",
+    "spread": "u8"
+  },
+  "componentParams": {
+    "static": [],
+    "gradient": [],
+    "breath": ["period_ms", "min_level"],
+    "blink": ["on_ms", "off_ms", "soft"],
+    "rainbow_wave": ["period_ms", "axis", "direction", "palette"],
+    "wave": ["period_ms", "axis", "wavelength", "direction"],
+    "scroll": ["period_ms", "axis", "width", "direction"],
+    "sparkle": ["rate", "decay_ms", "palette"],
+    "drift": ["period_ms", "count", "size", "wobble", "direction", "motion"],
+    "ring": ["period_ms", "life_ms", "max_radius", "width", "palette", "direction"],
+    "mote": ["period_ms", "count", "size", "motion", "palette", "direction"],
+    "frame_sequence": ["fps", "loop", "speed"],
+    "reactive": ["speed", "palette"],
+    "ripple": ["speed", "max_waves", "direction"],
+    "ripple_square": ["speed", "max_waves"],
+    "aurora": ["speed", "palette"],
+    "spectrum": ["gain", "palette", "peak_ms", "dense", "beat"],
+    "spectrum_mirror": ["gain", "palette"],
+    "spectrum_sum": ["gain", "palette"],
+    "key_tint": ["palette"],
+    "layer_event": ["event", "anim_ref"],
+    "spiral": ["period_ms", "arms", "twist", "beam", "palette", "direction", "soft_edge"],
+    "key_ring": ["life_ms", "max_radius", "width", "palette", "direction", "max_waves"],
+    "block_stack": ["step_ms", "palette"],
+    "key_burst": [
+      "life_ms",
+      "max_radius",
+      "width_tenths",
+      "softness_tenths",
+      "afterglow_ms",
+      "flash_ms",
+      "palette",
+      "max_bursts"
+    ],
+    "rain": [
+      "fall_min_ms",
+      "fall_max_ms",
+      "drops_per_second",
+      "shower_period_s",
+      "shower_extra",
+      "tail_first",
+      "tail_second",
+      "splash_ms"
+    ],
+    "fire": ["step_ms", "cooling", "sparking", "spread", "direction"]
+  },
+  "componentIds": {
+    "static": 1,
+    "gradient": 2,
+    "breath": 3,
+    "blink": 4,
+    "rainbow_wave": 5,
+    "wave": 6,
+    "scroll": 7,
+    "sparkle": 8,
+    "reactive": 16,
+    "ripple": 17,
+    "ripple_square": 18,
+    "aurora": 19,
+    "spectrum": 20,
+    "spectrum_mirror": 21,
+    "spectrum_sum": 22,
+    "key_tint": 23,
+    "layer_event": 24,
+    "frame_sequence": 32,
+    "spiral": 25,
+    "drift": 9,
+    "ring": 10,
+    "mote": 11,
+    "key_ring": 12,
+    "block_stack": 13,
+    "key_burst": 14,
+    "rain": 15,
+    "fire": 26
+  },
+  "componentParamValueTypes": {
+    "key_burst": {
+      "origin": "enum:ringOrigin"
+    },
+    "fire": {
+      "direction": "enum:fireDirection"
+    },
+    "reactive": {
+      "color_mode": "enum:reactiveColorMode"
+    },
+    "rainbow_wave": {
+      "axis": "enum:waveAxis",
+      "spatial_direction": "enum:waveSpatialDirection"
+    }
+  },
+  "componentParamSuffix": {
+    "rainbow_wave": ["width_pct", "wrap", "spatial_direction", "angle_deg"],
+    "reactive": ["color_mode", "duration_ms"],
+    "spiral": ["color_twist", "center_x", "center_y"]
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "keyEvents": [
+    { "tick": 0, "type": "down", "cell": "1,2" },
+    { "tick": 6, "type": "up", "cell": "1,2" },
+    { "tick": 10, "type": "down", "cell": "3,1" }
+  ],
+  "audio": [{ "tick": 0, "bands": [120, 200, 90, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] }]
+}

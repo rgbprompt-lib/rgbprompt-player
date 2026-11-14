@@ -1,0 +1,23 @@
+RGBPrompt Player
+Copyright 2026 the RGBPrompt authors
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE), except
+packages/engine, which is licensed under the MIT License (see packages/engine/LICENSE).
+
+This product includes or depends on third-party software:
+
+- Rust crates (apps/player-core/Cargo.lock), mostly MIT and/or Apache-2.0; others include
+  ring (Apache-2.0 AND ISC, with OpenSSL-derived code), rustls-webpki and untrusted (ISC),
+  subtle (BSD-3-Clause), foldhash and zlib-rs (Zlib), unicode-ident (Unicode-3.0),
+  webpki-roots (CDLA-Permissive-2.0). Run `cargo tree -e normal -f '{p} {l}'` in
+  apps/player-core for the full list.
+- QuickJS, via the rquickjs crates (MIT).
+- JavaScript build and test tools (pnpm-lock.yaml), including esbuild, TypeScript, ESLint,
+  Prettier and Vitest (MIT / Apache-2.0); build-time only.
+- Space Grotesk font, SIL Open Font License 1.1
+  (apps/player-mac/Sources/RGBPromptPlayer/Fonts/OFL.txt).
+- Windows: H.NotifyIcon.WinUI (MIT); Microsoft.WindowsAppSDK and
+  Microsoft.Windows.SDK.BuildTools (Microsoft license terms, binary dependencies only).
+
+OpenRGB (https://openrgb.org) is licensed under GPL-2.0. It is not included in or linked into
+this product; the Player talks to a separately installed OpenRGB process over its network SDK.

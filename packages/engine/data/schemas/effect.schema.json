@@ -1,0 +1,411 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lep.example/effect.schema.json",
+  "title": "LEP Effect DSL v1",
+  "description": "Structured description of a keyboard LED effect. See docs/06-effect-dsl-spec.md",
+  "type": "object",
+  "required": ["schema", "meta", "layer"],
+  "additionalProperties": true,
+  "properties": {
+    "schema": {
+      "const": "lep.effect/1"
+    },
+    "meta": {
+      "$ref": "#/$defs/meta"
+    },
+    "layer": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 8,
+      "items": {
+        "$ref": "#/$defs/layer"
+      }
+    },
+    "program": {
+      "type": ["object", "null"]
+    }
+  },
+  "$defs": {
+    "meta": {
+      "type": "object",
+      "required": ["name", "author", "generator", "seed"],
+      "additionalProperties": true,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 48
+        },
+        "author": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 16
+        },
+        "license": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "generator": {
+          "enum": ["human", "ai"]
+        },
+        "target_boards": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": ["any"]
+        },
+        "region_profile": {
+          "enum": ["legacy", "ansi104-v1", "ansi104-v2"]
+        },
+        "motion_profile": {
+          "enum": ["legacy", "physical-v1"]
+        },
+        "execution_profile": {
+          "enum": ["composable-v1"]
+        },
+        "requires": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "seed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295
+        },
+        "version": {
+          "type": "string",
+          "maxLength": 16
+        },
+        "min_fw": {
+          "type": "string",
+          "maxLength": 16
+        }
+      }
+    },
+    "layer": {
+      "type": "object",
+      "required": ["id", "component", "surface"],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 24
+        },
+        "component": {
+          "enum": [
+            "static",
+            "gradient",
+            "breath",
+            "blink",
+            "rainbow_wave",
+            "wave",
+            "scroll",
+            "sparkle",
+            "drift",
+            "ring",
+            "key_ring",
+            "key_burst",
+            "rain",
+            "mote",
+            "spiral",
+            "fire",
+            "block_stack",
+            "frame_sequence",
+            "reactive",
+            "ripple",
+            "ripple_square",
+            "aurora",
+            "spectrum",
+            "spectrum_mirror",
+            "spectrum_sum",
+            "key_tint",
+            "layer_event"
+          ]
+        },
+        "surface": {
+          "$ref": "#/$defs/surface"
+        },
+        "color": {
+          "$ref": "#/$defs/color"
+        },
+        "time": {
+          "$ref": "#/$defs/time"
+        },
+        "trigger": {
+          "$ref": "#/$defs/trigger"
+        },
+        "blend": {
+          "enum": ["replace", "add", "max", "mask"],
+          "default": "replace"
+        },
+        "opacity": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255,
+          "default": 255
+        },
+        "bypass_brightness": {
+          "type": "boolean",
+          "default": false
+        },
+        "params": {
+          "type": "object"
+        }
+      }
+    },
+    "surface": {
+      "type": "object",
+      "required": ["type"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": ["all", "regions", "cells", "rows", "cols"]
+        },
+        "invert": {
+          "type": "boolean",
+          "default": false
+        },
+        "regions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "cells": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[0-5],[0-9]{1,2}$"
+          }
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 5
+          }
+        },
+        "cols": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 21
+          }
+        }
+      }
+    },
+    "color": {
+      "type": "object",
+      "required": ["type"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": ["solid", "palette_index", "ramp", "hue_cycle", "random", "from_input"]
+        },
+        "rgb": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 255
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "palette": {
+          "type": "string"
+        },
+        "colors": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "maxItems": 32
+        },
+        "index": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "axis": {
+          "enum": ["x", "y", "radial"]
+        },
+        "from": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000
+        },
+        "to": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000
+        },
+        "period_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "saturation": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "value": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "source": {
+          "enum": ["key_press", "audio", "key_hold"]
+        }
+      }
+    },
+    "time": {
+      "type": "object",
+      "required": ["type"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": ["static", "breath", "blink", "phase_scroll", "ease"]
+        },
+        "period_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "phase_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "min_level": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "on_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "off_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "soft": {
+          "type": "boolean",
+          "default": true
+        },
+        "attack_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "release_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "easing": {
+          "oneOf": [
+            {
+              "enum": ["linear", "sine", "pulse", "ease-in", "ease-out", "ease-in-out"]
+            },
+            {
+              "type": "object",
+              "required": ["bezier"],
+              "additionalProperties": true,
+              "properties": {
+                "bezier": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "minItems": 4,
+                  "maxItems": 4
+                }
+              }
+            },
+            {
+              "type": "object",
+              "required": ["lut"],
+              "additionalProperties": true,
+              "properties": {
+                "lut": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000
+                  },
+                  "minItems": 2,
+                  "maxItems": 129
+                }
+              }
+            }
+          ]
+        },
+        "direction": {
+          "enum": ["forward", "reverse", "bidirectional"]
+        }
+      }
+    },
+    "trigger": {
+      "type": "object",
+      "required": ["type"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": ["always", "periodic", "key_press", "key_hold", "key_release", "audio", "state"]
+        },
+        "scope": {
+          "type": "string"
+        },
+        "period_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "phase_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "threshold": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "state": {
+          "enum": ["battery", "connect", "channel", "lock"]
+        },
+        "event": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

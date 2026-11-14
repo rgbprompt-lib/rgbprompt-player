@@ -1,0 +1,287 @@
+{
+  "cases": [
+    {
+      "name": "round trip",
+      "url": "rgbprompt://play?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&v=1",
+      "expected": {
+        "kind": "play",
+        "token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "version": 1
+      }
+    },
+    {
+      "name": "missing version defaults to 1",
+      "url": "rgbprompt://play?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "expected": {
+        "kind": "play",
+        "token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "version": 1
+      }
+    },
+    {
+      "name": "empty version defaults to 1",
+      "url": "rgbprompt://play?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&v=",
+      "expected": {
+        "kind": "play",
+        "token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "version": 1
+      }
+    },
+    {
+      "name": "open",
+      "url": "rgbprompt://open",
+      "expected": {
+        "kind": "open"
+      }
+    },
+    {
+      "name": "open with query",
+      "url": "rgbprompt://open?foo=bar",
+      "expected": {
+        "kind": "open"
+      }
+    },
+    {
+      "name": "open with trailing slash",
+      "url": "rgbprompt://open/",
+      "expected": {
+        "kind": "open"
+      }
+    },
+    {
+      "name": "wrong scheme https",
+      "url": "https://play?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&v=1",
+      "expected": null
+    },
+    {
+      "name": "wrong scheme single slash",
+      "url": "rgbprompt:/play?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&v=1",
+      "expected": null
+    },
+    {
+      "name": "uppercase scheme",
+      "url": "RGBPROMPT://play?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&v=1",
+      "expected": null
+    },
+    {
+      "name": "missing token",
+      "url": "rgbprompt://play?v=1",
+      "expected": null
+    },
+    {
+      "name": "empty token",
+      "url": "rgbprompt://play?t=&v=1",
+      "expected": null
+    },
+    {
+      "name": "uppercase token",
+      "url": "rgbprompt://play?t=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&v=1",
+      "expected": null
+    },
+    {
+      "name": "short token",
+      "url": "rgbprompt://play?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&v=1",
+      "expected": null
+    },
+    {
+      "name": "long token",
+      "url": "rgbprompt://play?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&v=1",
+      "expected": null
+    },
+    {
+      "name": "token key without value",
+      "url": "rgbprompt://play?t&v=1",
+      "expected": null
+    },
+    {
+      "name": "higher version",
+      "url": "rgbprompt://play?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&v=2",
+      "expected": {
+        "kind": "unsupported_version",
+        "version": 2
+      }
+    },
+    {
+      "name": "version zero",
+      "url": "rgbprompt://play?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&v=0",
+      "expected": {
+        "kind": "play",
+        "token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "version": 0
+      }
+    },
+    {
+      "name": "leading zero version",
+      "url": "rgbprompt://play?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&v=01",
+      "expected": {
+        "kind": "play",
+        "token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "version": 1
+      }
+    },
+    {
+      "name": "version ten is unsupported",
+      "url": "rgbprompt://play?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&v=10",
+      "expected": {
+        "kind": "unsupported_version",
+        "version": 10
+      }
+    },
+    {
+      "name": "non digit version",
+      "url": "rgbprompt://play?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&v=abc",
+      "expected": null
+    },
+    {
+      "name": "signed version",
+      "url": "rgbprompt://play?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&v=%2B1",
+      "expected": null
+    },
+    {
+      "name": "version beyond a safe integer",
+      "url": "rgbprompt://play?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&v=9007199254740992",
+      "expected": null
+    },
+    {
+      "name": "version overflows u64",
+      "url": "rgbprompt://play?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&v=18446744073709551616",
+      "expected": null
+    },
+    {
+      "name": "maximum safe integer is unsupported",
+      "url": "rgbprompt://play?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&v=9007199254740991",
+      "expected": {
+        "kind": "unsupported_version",
+        "version": 9007199254740991
+      }
+    },
+    {
+      "name": "extra query parameters are ignored",
+      "url": "rgbprompt://play?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&v=1&utm=x&x=y",
+      "expected": {
+        "kind": "play",
+        "token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "version": 1
+      }
+    },
+    {
+      "name": "empty query pair is skipped",
+      "url": "rgbprompt://play?&t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&v=1",
+      "expected": {
+        "kind": "play",
+        "token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "version": 1
+      }
+    },
+    {
+      "name": "first occurrence wins",
+      "url": "rgbprompt://play?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&t=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb&v=1",
+      "expected": {
+        "kind": "play",
+        "token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "version": 1
+      }
+    },
+    {
+      "name": "version key without value defaults to 1",
+      "url": "rgbprompt://play?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&v",
+      "expected": {
+        "kind": "play",
+        "token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "version": 1
+      }
+    },
+    {
+      "name": "uppercase version key is ignored",
+      "url": "rgbprompt://play?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&V=2",
+      "expected": {
+        "kind": "play",
+        "token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "version": 1
+      }
+    },
+    {
+      "name": "hash is stripped",
+      "url": "rgbprompt://play?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&v=1#fragment",
+      "expected": {
+        "kind": "play",
+        "token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "version": 1
+      }
+    },
+    {
+      "name": "hash before the query hides it",
+      "url": "rgbprompt://play#fragment?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&v=1",
+      "expected": null
+    },
+    {
+      "name": "extra path segment is rejected",
+      "url": "rgbprompt://play/x?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&v=1",
+      "expected": null
+    },
+    {
+      "name": "path token is rejected",
+      "url": "rgbprompt://play/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "expected": null
+    },
+    {
+      "name": "trailing slash is accepted",
+      "url": "rgbprompt://play/?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&v=1",
+      "expected": {
+        "kind": "play",
+        "token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "version": 1
+      }
+    },
+    {
+      "name": "double trailing slash is rejected",
+      "url": "rgbprompt://play//?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "expected": null
+    },
+    {
+      "name": "question mark in version is not a digit",
+      "url": "rgbprompt://play?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&v=1?x=2",
+      "expected": null
+    },
+    {
+      "name": "allowlisted test origin",
+      "url": "rgbprompt://play?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&v=1&o=https%3A%2F%2Ftest.rgbprompt.com",
+      "expected": {
+        "kind": "play",
+        "token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "version": 1,
+        "apiBase": "https://test.rgbprompt.com/api"
+      }
+    },
+    {
+      "name": "allowlisted prod origin",
+      "url": "rgbprompt://play?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&v=1&o=https%3A%2F%2Frgbprompt.com",
+      "expected": {
+        "kind": "play",
+        "token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "version": 1,
+        "apiBase": "https://rgbprompt.com/api"
+      }
+    },
+    {
+      "name": "loopback origin",
+      "url": "rgbprompt://play?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&v=1&o=http%3A%2F%2F127.0.0.1%3A5173",
+      "expected": {
+        "kind": "play",
+        "token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "version": 1,
+        "apiBase": "http://127.0.0.1:5173/api"
+      }
+    },
+    {
+      "name": "rejects evil origin",
+      "url": "rgbprompt://play?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&v=1&o=https%3A%2F%2Fevil.example",
+      "expected": null
+    },
+    {
+      "name": "rejects http non-loopback origin",
+      "url": "rgbprompt://play?t=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&v=1&o=http%3A%2F%2Ftest.rgbprompt.com",
+      "expected": null
+    }
+  ]
+}

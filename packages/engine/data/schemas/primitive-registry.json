@@ -1,0 +1,761 @@
+{
+  "registry_version": 1,
+  "dsl_version": 1,
+  "note": "Authoritative catalog of primitive IDs. IDs are frozen once released and must never be reused. See docs/05-primitive-spec.md",
+  "primitives": [
+    {
+      "id": 1,
+      "name": "static",
+      "kind": "deterministic",
+      "bakeable": true,
+      "params": {
+        "color": {}
+      }
+    },
+    {
+      "id": 2,
+      "name": "gradient",
+      "kind": "deterministic",
+      "bakeable": true,
+      "params": {
+        "color": {},
+        "axis": {
+          "enum": ["x", "y", "radial"],
+          "default": "x"
+        }
+      }
+    },
+    {
+      "id": 3,
+      "name": "breath",
+      "kind": "deterministic",
+      "bakeable": true,
+      "params": {
+        "period_ms": {
+          "min": 100,
+          "max": 65535,
+          "default": 2000
+        },
+        "min_level": {
+          "min": 0,
+          "max": 100,
+          "default": 10
+        }
+      }
+    },
+    {
+      "id": 4,
+      "name": "blink",
+      "kind": "deterministic",
+      "bakeable": true,
+      "params": {
+        "on_ms": {
+          "min": 0,
+          "max": 65535,
+          "default": 250
+        },
+        "off_ms": {
+          "min": 0,
+          "max": 65535,
+          "default": 250
+        },
+        "soft": {
+          "default": true
+        }
+      }
+    },
+    {
+      "id": 5,
+      "name": "rainbow_wave",
+      "kind": "deterministic",
+      "bakeable": true,
+      "params": {
+        "period_ms": {
+          "min": 200,
+          "max": 65535,
+          "default": 3000
+        },
+        "axis": {
+          "enum": ["x", "y", "angle", "uniform"],
+          "default": "x"
+        },
+        "direction": {
+          "enum": ["forward", "reverse"],
+          "default": "forward"
+        },
+        "palette": {
+          "default": "rainbow24"
+        },
+        "width_pct": {
+          "min": 1,
+          "max": 1000,
+          "default": 100
+        },
+        "wrap": {
+          "enum": ["seamless", "reset"],
+          "default": "seamless"
+        },
+        "spatial_direction": {
+          "enum": ["forward", "reverse", "mirror", "mirror_reverse"],
+          "default": "forward"
+        },
+        "angle_deg": {
+          "min": 0,
+          "max": 359,
+          "default": 0
+        }
+      }
+    },
+    {
+      "id": 6,
+      "name": "wave",
+      "kind": "deterministic",
+      "bakeable": true,
+      "params": {
+        "period_ms": {
+          "min": 100,
+          "max": 65535,
+          "default": 2000
+        },
+        "axis": {
+          "enum": ["x", "y"],
+          "default": "x"
+        },
+        "wavelength": {
+          "min": 1,
+          "max": 22,
+          "default": 8
+        },
+        "direction": {
+          "enum": ["forward", "reverse"],
+          "default": "forward"
+        }
+      }
+    },
+    {
+      "id": 7,
+      "name": "scroll",
+      "kind": "deterministic",
+      "bakeable": true,
+      "params": {
+        "period_ms": {
+          "min": 100,
+          "max": 65535,
+          "default": 1500
+        },
+        "axis": {
+          "enum": ["x", "y"],
+          "default": "x"
+        },
+        "width": {
+          "min": 1,
+          "max": 22,
+          "default": 4
+        },
+        "direction": {
+          "enum": ["forward", "reverse"],
+          "default": "forward"
+        }
+      }
+    },
+    {
+      "id": 8,
+      "name": "sparkle",
+      "kind": "deterministic",
+      "bakeable": true,
+      "params": {
+        "rate": {
+          "min": 1,
+          "max": 100,
+          "default": 8
+        },
+        "decay_ms": {
+          "min": 1,
+          "max": 65535,
+          "default": 500
+        },
+        "palette": {
+          "default": "rainbow24"
+        }
+      }
+    },
+    {
+      "id": 9,
+      "name": "drift",
+      "kind": "deterministic",
+      "bakeable": true,
+      "params": {
+        "period_ms": {
+          "min": 1000,
+          "max": 65535,
+          "default": 18000
+        },
+        "count": {
+          "min": 1,
+          "max": 8,
+          "default": 5
+        },
+        "size": {
+          "min": 1,
+          "max": 3,
+          "default": 2
+        },
+        "wobble": {
+          "min": 0,
+          "max": 2,
+          "default": 1
+        },
+        "direction": {
+          "enum": ["forward", "reverse"],
+          "default": "forward"
+        },
+        "motion": {
+          "enum": ["horizontal", "vertical", "both"],
+          "default": "horizontal"
+        }
+      }
+    },
+    {
+      "id": 10,
+      "name": "ring",
+      "kind": "dynamic",
+      "bakeable": false,
+      "params": {
+        "period_ms": {
+          "min": 200,
+          "max": 65535,
+          "default": 1600
+        },
+        "life_ms": {
+          "min": 300,
+          "max": 65535,
+          "default": 4500
+        },
+        "max_radius": {
+          "min": 1,
+          "max": 8,
+          "default": 4
+        },
+        "width": {
+          "min": 1,
+          "max": 3,
+          "default": 1
+        },
+        "palette": {
+          "default": "rainbow24"
+        },
+        "direction": {
+          "enum": ["forward", "reverse"],
+          "default": "forward"
+        }
+      }
+    },
+    {
+      "id": 12,
+      "name": "key_ring",
+      "kind": "dynamic",
+      "bakeable": false,
+      "params": {
+        "life_ms": {
+          "min": 100,
+          "max": 65535,
+          "default": 1400
+        },
+        "max_radius": {
+          "min": 1,
+          "max": 22,
+          "default": 4
+        },
+        "width": {
+          "min": 1,
+          "max": 3,
+          "default": 1
+        },
+        "palette": {
+          "default": "rainbow24"
+        },
+        "direction": {
+          "enum": ["forward", "reverse"],
+          "default": "forward"
+        },
+        "max_waves": {
+          "min": 1,
+          "max": 8,
+          "default": 8
+        },
+        "origin": {
+          "enum": ["event_key", "board_center", "random_key"],
+          "default": "event_key"
+        },
+        "envelope": {
+          "default": "fade_out",
+          "enum": ["fade_out", "constant", "fade_in", "fade_in_out"]
+        }
+      }
+    },
+    {
+      "id": 11,
+      "name": "mote",
+      "kind": "dynamic",
+      "bakeable": false,
+      "params": {
+        "period_ms": {
+          "min": 1000,
+          "max": 65535,
+          "default": 24000
+        },
+        "count": {
+          "min": 1,
+          "max": 24,
+          "default": 12
+        },
+        "size": {
+          "min": 1,
+          "max": 2,
+          "default": 1
+        },
+        "motion": {
+          "enum": ["horizontal", "vertical", "both"],
+          "default": "both"
+        },
+        "palette": {
+          "default": "rainbow24"
+        },
+        "direction": {
+          "enum": ["forward", "reverse"],
+          "default": "forward"
+        }
+      }
+    },
+    {
+      "id": 32,
+      "name": "frame_sequence",
+      "kind": "deterministic",
+      "bakeable": true,
+      "params": {
+        "fps": {
+          "min": 1,
+          "max": 60,
+          "default": 20
+        },
+        "loop": {
+          "default": true
+        },
+        "speed": {
+          "min": 0,
+          "max": 4,
+          "default": 2
+        }
+      }
+    },
+    {
+      "id": 16,
+      "name": "reactive",
+      "kind": "dynamic",
+      "bakeable": false,
+      "params": {
+        "speed": {
+          "min": 0,
+          "max": 4,
+          "default": 2
+        },
+        "palette": {
+          "default": "rainbow24"
+        },
+        "color_mode": {
+          "enum": ["fixed", "lifecycle"],
+          "default": "fixed"
+        },
+        "duration_ms": {
+          "min": 100,
+          "max": 10000,
+          "default": 1000
+        }
+      }
+    },
+    {
+      "id": 17,
+      "name": "ripple",
+      "kind": "dynamic",
+      "bakeable": false,
+      "params": {
+        "speed": {
+          "min": 0,
+          "max": 4,
+          "default": 2
+        },
+        "max_waves": {
+          "min": 1,
+          "max": 10,
+          "default": 10
+        },
+        "direction": {
+          "enum": ["horizontal", "square"],
+          "default": "horizontal"
+        }
+      }
+    },
+    {
+      "id": 18,
+      "name": "ripple_square",
+      "kind": "dynamic",
+      "bakeable": false,
+      "params": {
+        "speed": {
+          "min": 0,
+          "max": 4,
+          "default": 2
+        },
+        "max_waves": {
+          "min": 1,
+          "max": 10,
+          "default": 10
+        }
+      }
+    },
+    {
+      "id": 19,
+      "name": "aurora",
+      "kind": "dynamic",
+      "bakeable": false,
+      "params": {
+        "speed": {
+          "min": 0,
+          "max": 4,
+          "default": 2
+        },
+        "palette": {
+          "default": "rainbow24"
+        }
+      }
+    },
+    {
+      "id": 20,
+      "name": "spectrum",
+      "kind": "dynamic",
+      "bakeable": false,
+      "params": {
+        "gain": {
+          "min": 0,
+          "max": 255,
+          "default": 32
+        },
+        "palette": {
+          "default": "rainbow24"
+        },
+        "peak_ms": {
+          "min": 0,
+          "max": 1000,
+          "default": 0
+        },
+        "dense": {
+          "default": false
+        },
+        "beat": {
+          "default": false
+        },
+        "attack_ms": {
+          "default": 0,
+          "min": 0,
+          "max": 2000
+        },
+        "release_ms": {
+          "default": 0,
+          "min": 0,
+          "max": 2000
+        },
+        "color_by_height": {
+          "default": false
+        }
+      }
+    },
+    {
+      "id": 21,
+      "name": "spectrum_mirror",
+      "kind": "dynamic",
+      "bakeable": false,
+      "params": {
+        "gain": {
+          "min": 0,
+          "max": 255,
+          "default": 32
+        },
+        "palette": {
+          "default": "rainbow24"
+        },
+        "dense": {
+          "default": false
+        },
+        "peak_ms": {
+          "default": 0,
+          "min": 0,
+          "max": 1000
+        },
+        "full_range": {
+          "default": false
+        },
+        "attack_ms": {
+          "default": 0,
+          "min": 0,
+          "max": 2000
+        },
+        "release_ms": {
+          "default": 0,
+          "min": 0,
+          "max": 2000
+        },
+        "color_by_height": {
+          "default": false
+        }
+      }
+    },
+    {
+      "id": 22,
+      "name": "spectrum_sum",
+      "kind": "dynamic",
+      "bakeable": false,
+      "params": {
+        "gain": {
+          "min": 0,
+          "max": 255,
+          "default": 32
+        },
+        "palette": {
+          "default": "rainbow24"
+        },
+        "attack_ms": {
+          "default": 0,
+          "min": 0,
+          "max": 2000
+        },
+        "release_ms": {
+          "default": 0,
+          "min": 0,
+          "max": 2000
+        }
+      }
+    },
+    {
+      "id": 23,
+      "name": "key_tint",
+      "kind": "dynamic",
+      "bakeable": false,
+      "params": {
+        "palette": {
+          "default": "seven"
+        }
+      }
+    },
+    {
+      "id": 24,
+      "name": "layer_event",
+      "kind": "dynamic",
+      "bakeable": false,
+      "params": {
+        "event": {},
+        "anim_ref": {}
+      }
+    },
+    {
+      "id": 25,
+      "name": "spiral",
+      "kind": "dynamic",
+      "bakeable": false,
+      "params": {
+        "period_ms": {
+          "min": 100,
+          "max": 65535,
+          "default": 3000
+        },
+        "arms": {
+          "min": 1,
+          "max": 8,
+          "default": 2
+        },
+        "twist": {
+          "min": 0,
+          "max": 2000,
+          "default": 1000
+        },
+        "beam": {
+          "min": 10,
+          "max": 1000,
+          "default": 240
+        },
+        "palette": {
+          "default": "rainbow24"
+        },
+        "direction": {
+          "enum": ["forward", "reverse"],
+          "default": "forward"
+        },
+        "soft_edge": {
+          "min": 0,
+          "max": 500,
+          "default": 0
+        },
+        "color_twist": {
+          "min": 0,
+          "max": 2000,
+          "default": 500
+        },
+        "center_x": {
+          "min": 0,
+          "max": 1000,
+          "default": 500
+        },
+        "center_y": {
+          "min": 0,
+          "max": 1000,
+          "default": 500
+        }
+      }
+    },
+    {
+      "id": 13,
+      "name": "block_stack",
+      "kind": "dynamic",
+      "bakeable": false,
+      "params": {
+        "step_ms": {
+          "min": 50,
+          "max": 5000,
+          "default": 450
+        },
+        "palette": {
+          "default": "seven"
+        }
+      }
+    },
+    {
+      "id": 14,
+      "name": "key_burst",
+      "kind": "dynamic",
+      "bakeable": false,
+      "params": {
+        "life_ms": {
+          "min": 200,
+          "max": 2000,
+          "default": 1600
+        },
+        "max_radius": {
+          "min": 1,
+          "max": 12,
+          "default": 6
+        },
+        "width_tenths": {
+          "min": 1,
+          "max": 30,
+          "default": 15
+        },
+        "softness_tenths": {
+          "min": 0,
+          "max": 30,
+          "default": 10
+        },
+        "afterglow_ms": {
+          "min": 0,
+          "max": 800,
+          "default": 800
+        },
+        "flash_ms": {
+          "min": 0,
+          "max": 80,
+          "default": 80
+        },
+        "palette": {
+          "default": "rainbow24"
+        },
+        "max_bursts": {
+          "min": 1,
+          "max": 8,
+          "default": 4
+        },
+        "origin": {
+          "enum": ["event_key", "board_center", "random_key"],
+          "default": "board_center"
+        }
+      }
+    },
+    {
+      "id": 15,
+      "name": "rain",
+      "kind": "dynamic",
+      "bakeable": false,
+      "params": {
+        "fall_min_ms": {
+          "min": 300,
+          "max": 1500,
+          "default": 750
+        },
+        "fall_max_ms": {
+          "min": 300,
+          "max": 1500,
+          "default": 900
+        },
+        "drops_per_second": {
+          "min": 1,
+          "max": 5,
+          "default": 3
+        },
+        "shower_period_s": {
+          "min": 0,
+          "max": 60,
+          "default": 7
+        },
+        "shower_extra": {
+          "min": 0,
+          "max": 5,
+          "default": 5
+        },
+        "tail_first": {
+          "min": 0,
+          "max": 100,
+          "default": 40
+        },
+        "tail_second": {
+          "min": 0,
+          "max": 100,
+          "default": 10
+        },
+        "splash_ms": {
+          "min": 0,
+          "max": 500,
+          "default": 160
+        }
+      }
+    },
+    {
+      "id": 26,
+      "name": "fire",
+      "kind": "dynamic",
+      "bakeable": false,
+      "params": {
+        "step_ms": {
+          "min": 20,
+          "max": 200,
+          "default": 60
+        },
+        "cooling": {
+          "min": 0,
+          "max": 100,
+          "default": 45
+        },
+        "sparking": {
+          "min": 0,
+          "max": 100,
+          "default": 65
+        },
+        "spread": {
+          "min": 0,
+          "max": 100,
+          "default": 50
+        },
+        "direction": {
+          "enum": ["up", "down", "left", "right"],
+          "default": "up"
+        }
+      }
+    }
+  ]
+}

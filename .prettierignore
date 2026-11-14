@@ -1,0 +1,8 @@
+pnpm-lock.yaml
+dist
+node_modules
+apps/player-core/target
+apps/player-core/fixtures/golden
+apps/player-win/**/bin/
+apps/player-win/**/obj/
+docs

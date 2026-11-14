@@ -1,0 +1,33 @@
+{
+  "schema": "lep.effect/1",
+  "meta": {
+    "name": "Cyber Breath",
+    "author": "alice",
+    "generator": "ai",
+    "tags": ["cyberpunk"],
+    "seed": 42
+  },
+  "layer": [
+    {
+      "id": "base",
+      "component": "gradient",
+      "surface": { "type": "all" },
+      "color": {
+        "type": "ramp",
+        "colors": [
+          [0, 255, 255],
+          [255, 0, 255]
+        ],
+        "axis": "x"
+      },
+      "blend": "replace"
+    },
+    {
+      "id": "pulse",
+      "component": "breath",
+      "surface": { "type": "all" },
+      "time": { "type": "breath", "period_ms": 2400, "easing": "sine", "min_level": 15 },
+      "blend": "mask"
+    }
+  ]
+}

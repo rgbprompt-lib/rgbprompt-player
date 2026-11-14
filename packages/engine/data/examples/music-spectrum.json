@@ -1,0 +1,27 @@
+{
+  "schema": "lep.effect/1",
+  "meta": {
+    "name": "music_spectrum",
+    "author": "example",
+    "generator": "human",
+    "seed": 21
+  },
+  "layer": [
+    {
+      "id": "sp",
+      "component": "spectrum",
+      "surface": {
+        "type": "all"
+      },
+      "trigger": { "type": "audio" },
+      "blend": "max",
+      "params": {
+        "gain": 32,
+        "palette": "rainbow24",
+        "peak_ms": 300,
+        "dense": true,
+        "beat": true
+      }
+    }
+  ]
+}
