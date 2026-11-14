@@ -747,6 +747,18 @@ impl ManagedDriver {
         Ok(())
     }
 
+    /// The managed child exited without us stopping it and the supervisor is
+    /// still responsible for it (it has not given up).
+    fn managed_exit_pending(&self) -> bool {
+        let Ok(inner) = self.shared.inner.lock() else {
+            return false;
+        };
+        !inner.gave_up
+            && inner.process.as_ref().is_some_and(|process| {
+                !process.control.stop.load(Ordering::Relaxed) && !process.control.alive()
+            })
+    }
+
     fn stop_managed(&self) {
         let process = self.shared.inner.lock().ok().and_then(|mut inner| {
             inner.mode = DriverMode::None;
@@ -968,6 +980,12 @@ impl DriverProvider for ManagedDriver {
     }
 
     fn restart(&self) -> Result<(), DriverFailure> {
+        // A managed child that already exited on its own is a crash. Leave it
+        // to the supervisor, which counts it once (crash limit, backoff) and
+        // respawns; killing and relaunching here would hide the crash.
+        if self.managed_exit_pending() {
+            return Ok(());
+        }
         if let Ok(mut inner) = self.shared.inner.lock() {
             inner.gave_up = false;
             inner.external_lost = false;
