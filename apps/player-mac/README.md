@@ -189,16 +189,29 @@ actor. Logs contain only `hid_change added=<n> removed=<n>`.
 
 ## Entry points and default handler
 
-`Info.plist` registers the `rgbprompt` URL scheme, the exported UTI
-`com.rgbprompt.lep` and a Viewer document type for `.lep`. `AppDelegate` routes
-`rgbprompt://play` / `rgbprompt://open` and Finder-opened `.lep` files to the
-core. A `.lep` can also be dropped on the panel's idle zone or the status item.
+In-tree `Info.plist` registers the exported UTI `com.rgbprompt.lep` and a
+Viewer document type for `.lep`. It does **not** declare `CFBundleURLTypes` /
+`rgbprompt://`. Daily Xcode and Release builds must stay scheme-free so Launch
+Services does not register a development copy as the `rgbprompt://` handler.
 
-When this app is not the default handler, the panel footer offers
-"Make this the app for rgbprompt:// links". That calls the system registration
-APIs; tests and scripts never do. For local testing, pass a
-`rgbprompt://…` argument or a `.lep` path on the command line: it is handled once
-after launch.
+The official scheme is injected only by `tools/player/sign-notarize-mac.sh`,
+into the staged app after `ditto` and helper nesting and before codesign. The
+script then checks that the staged package still contains both `rgbprompt://`
+and the bundled OpenRGB helper. Do not add the scheme back to the source
+plist, and do not edit an already-signed official app to add or remove it.
+
+`AppDelegate` routes `rgbprompt://play` / `rgbprompt://open` and Finder-opened
+`.lep` files to the core when the official package is launched. A `.lep` can
+also be dropped on the panel's idle zone or the status item.
+`DefaultHandlerCoordinator.makeDefault()` is user-initiated and will not claim
+`rgbprompt://` unless the running bundle already declares the scheme.
+Launch itself does not call `NSWorkspace.setDefaultApplication`.
+
+When an official build is not the default handler, the panel footer offers
+"Make this the app for rgbprompt:// links". Tests and scripts never do that.
+For local testing, pass a `rgbprompt://…` argument or a `.lep` path on the
+command line: it is handled once after launch. A development build will not
+become the system `rgbprompt://` handler just by being built or opened.
 
 ## Input: system sound and keys
 

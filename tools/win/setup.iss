@@ -67,7 +67,10 @@ Name: "{group}\{#AppName}"; Filename: "{app}\{#AppExeName}"; WorkingDir: "{app}"
 Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\Assets\app.ico"; Tasks: desktopicon
 
 [Registry]
-; Mirror ProtocolRegistrationService (HKCU, PLAYER §9.2).
+; Official rgbprompt:// and .lep registration (HKCU, PLAYER §3 / §9.2).
+; This installer is the only pack-time writer. The running app may repair
+; the same keys only when launched from {localappdata}\Programs\RGBPrompt;
+; daily development / Release builds must not write them.
 Root: HKCU; Subkey: "Software\Classes\rgbprompt"; ValueType: string; ValueName: ""; ValueData: "URL:RGBPrompt Protocol"; Flags: uninsdeletekey
 Root: HKCU; Subkey: "Software\Classes\rgbprompt"; ValueType: string; ValueName: "URL Protocol"; ValueData: ""
 Root: HKCU; Subkey: "Software\Classes\rgbprompt\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#AppExeName}"" ""%1"""

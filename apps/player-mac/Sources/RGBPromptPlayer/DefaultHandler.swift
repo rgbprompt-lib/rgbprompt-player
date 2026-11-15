@@ -6,6 +6,12 @@ import UniformTypeIdentifiers
 
 /// Tracks whether this app owns `rgbprompt://` and `.lep`. The registration
 /// APIs are only called from the app, never from tests or scripts.
+///
+/// The `rgbprompt` URL scheme is declared only on official signed packages
+/// (`tools/player/sign-notarize-mac.sh` injects `CFBundleURLTypes` into the
+/// staged app). Daily Xcode / Release builds omit it, so Launch Services will
+/// not re-register a development copy, and "Make default" will not claim the
+/// scheme unless the running bundle already declares it.
 @MainActor
 final class DefaultHandlerCoordinator: ObservableObject {
     @Published private(set) var isDefaultForScheme = true
@@ -14,8 +20,23 @@ final class DefaultHandlerCoordinator: ObservableObject {
     private let bridge: PlayerCoreBridge
     private let logger = Logger(subsystem: "com.rgbprompt.player", category: "handler")
 
+    /// Official distribution packages declare `rgbprompt` in Info.plist;
+    /// development builds do not.
+    var declaresRgbpromptScheme: Bool {
+        guard let types = Bundle.main.infoDictionary?["CFBundleURLTypes"] as? [[String: Any]] else {
+            return false
+        }
+        return types.contains { type in
+            let schemes = type["CFBundleURLSchemes"] as? [String] ?? []
+            return schemes.contains { $0.caseInsensitiveCompare("rgbprompt") == .orderedSame }
+        }
+    }
+
     var showsDefaultHandlerPrompt: Bool {
-        !(isDefaultForScheme && isDefaultForLep)
+        if declaresRgbpromptScheme {
+            return !(isDefaultForScheme && isDefaultForLep)
+        }
+        return !isDefaultForLep
     }
 
     private var lepType: UTType? {
@@ -31,21 +52,25 @@ final class DefaultHandlerCoordinator: ObservableObject {
         let schemeApp = scheme.flatMap { NSWorkspace.shared.urlForApplication(toOpen: $0) }
         let lepApp = lepType.flatMap { NSWorkspace.shared.urlForApplication(toOpen: $0) }
 
-        isDefaultForScheme = matchesThisApp(schemeApp)
+        isDefaultForScheme = declaresRgbpromptScheme && matchesThisApp(schemeApp)
         isDefaultForLep = matchesThisApp(lepApp)
         _ = bridge.setProtocolRegistered(isDefaultForScheme)
     }
 
     func makeDefault() {
         let appURL = Bundle.main.bundleURL
-        NSWorkspace.shared.setDefaultApplication(
-            at: appURL,
-            toOpenURLsWithScheme: "rgbprompt"
-        ) { [weak self] error in
-            if let error {
-                self?.logger.error("scheme handler: \(error.localizedDescription, privacy: .public)")
+        // Never claim rgbprompt:// from a development build that does not
+        // declare the scheme. Launch does not register it automatically.
+        if declaresRgbpromptScheme {
+            NSWorkspace.shared.setDefaultApplication(
+                at: appURL,
+                toOpenURLsWithScheme: "rgbprompt"
+            ) { [weak self] error in
+                if let error {
+                    self?.logger.error("scheme handler: \(error.localizedDescription, privacy: .public)")
+                }
+                Task { @MainActor in self?.refresh() }
             }
-            Task { @MainActor in self?.refresh() }
         }
 
         if let lepType {

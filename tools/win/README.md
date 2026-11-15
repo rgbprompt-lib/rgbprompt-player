@@ -86,7 +86,7 @@ powershell -ExecutionPolicy Bypass -File tools\win\pack-setup.ps1 `
   -OutputDir <out>
 ```
 
-Output default name: `RGBPrompt-Player-0.7.0-11-win-x64-setup.exe`. Installs to `%LOCALAPPDATA%\Programs\RGBPrompt` (no admin), creates Start Menu / Desktop shortcuts, and registers `rgbprompt://` plus `.lep` in HKCU. Uninstall removes those and the app directory, and does **not** delete user data under `%LOCALAPPDATA%\RGBPrompt`.
+Output default name: `RGBPrompt-Player-0.7.0-11-win-x64-setup.exe`. Installs to `%LOCALAPPDATA%\Programs\RGBPrompt` (no admin), creates Start Menu / Desktop shortcuts, and registers `rgbprompt://` plus `.lep` in HKCU. That official installer (and self-heal only when the running exe is under this official directory) is the only supported way to register the protocol; daily `build.ps1` / Release output must not write those HKCU keys. Uninstall removes the associations and the app directory, and does **not** delete user data under `%LOCALAPPDATA%\RGBPrompt`.
 
 ## USB keyboard passthrough
 

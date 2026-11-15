@@ -21,6 +21,11 @@
 #                              default: ~/personal/rgbprompt-signing/releases/openrgb-f81fd32-evision.1/OpenRGB.app
 #   OPENRGB_ENTITLEMENTS       empty plist used when re-signing the helper
 #   SKIP_OPENRGB=1             skip nesting (dev only; the release Player needs the helper)
+#
+# Official URL scheme: in-tree / Xcode Info.plist does not declare
+# CFBundleURLTypes. This script injects rgbprompt:// into the staged
+# copy after ditto + helper nesting and before codesign, then verifies
+# the scheme (and the helper, unless SKIP_OPENRGB=1) are present.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -119,6 +124,31 @@ if [[ "${SKIP_OPENRGB:-0}" != 1 ]]; then
     echo "player:mac:release: bundled OpenRGB from $OPENRGB_APP"
 fi
 
+# Development builds must not appear as rgbprompt:// handlers. Claim the
+# scheme only on this official staged copy, before any signing.
+SCHEME_PLIST="$ROOT/tools/player/official-url-scheme.plist"
+STAGED_PLIST="$APP/Contents/Info.plist"
+if [[ ! -f "$SCHEME_PLIST" ]]; then
+    echo "player:mac:release: missing official URL scheme fragment: $SCHEME_PLIST" >&2
+    exit 1
+fi
+if /usr/libexec/PlistBuddy -c 'Print :CFBundleURLTypes' "$STAGED_PLIST" >/dev/null 2>&1; then
+    /usr/libexec/PlistBuddy -c 'Delete :CFBundleURLTypes' "$STAGED_PLIST"
+fi
+/usr/libexec/PlistBuddy -c "Merge $SCHEME_PLIST" "$STAGED_PLIST"
+SCHEME="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleURLTypes:0:CFBundleURLSchemes:0' "$STAGED_PLIST")"
+if [[ "$SCHEME" != "rgbprompt" ]]; then
+    echo "player:mac:release: official URL scheme inject failed (got: ${SCHEME:-empty})" >&2
+    exit 1
+fi
+if [[ "${SKIP_OPENRGB:-0}" != 1 ]]; then
+    if [[ ! -x "$APP/Contents/Helpers/OpenRGB.app/Contents/MacOS/OpenRGB" ]]; then
+        echo "player:mac:release: official package is missing the bundled OpenRGB helper" >&2
+        exit 1
+    fi
+fi
+echo "player:mac:release: injected official rgbprompt:// URL scheme"
+
 is_macho() {
     file -b "$1" 2>/dev/null | grep -q 'Mach-O'
 }
@@ -185,6 +215,17 @@ codesign --force --options runtime --timestamp \
     "$APP"
 
 codesign --verify --deep --strict --verbose=2 "$APP"
+
+SCHEME="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleURLTypes:0:CFBundleURLSchemes:0' "$APP/Contents/Info.plist")"
+if [[ "$SCHEME" != "rgbprompt" ]]; then
+    echo "player:mac:release: signed app is missing the official rgbprompt:// URL scheme" >&2
+    exit 1
+fi
+if [[ "${SKIP_OPENRGB:-0}" != 1 && ! -x "$APP/Contents/Helpers/OpenRGB.app/Contents/MacOS/OpenRGB" ]]; then
+    echo "player:mac:release: signed app is missing the bundled OpenRGB helper" >&2
+    exit 1
+fi
+echo "player:mac:release: signed app still has official rgbprompt:// scheme and helper"
 
 
 # Writable scratch folder → compressed DMG, then sign the DMG.
