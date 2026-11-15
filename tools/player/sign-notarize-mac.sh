@@ -203,7 +203,7 @@ hdiutil create \
 codesign --force --timestamp --sign "$IDENTITY" "$DMG"
 
 echo "player:mac:release: submitting DMG to notary (profile name only, no secrets)"
-SUBMIT_JSON="$(mktemp "${TMPDIR:-/tmp}/rgbprompt-notary.XXXXXX.json")"
+SUBMIT_JSON="$(mktemp "${TMPDIR:-/tmp}/rgbprompt-notary.XXXXXX")"
 if ! xcrun notarytool submit "$DMG" \
         --keychain-profile "$PROFILE" \
         --wait \

@@ -86,7 +86,7 @@ powershell -ExecutionPolicy Bypass -File tools\win\pack-setup.ps1 `
   -OutputDir <out>
 ```
 
-Output default name: `RGBPrompt-Player-0.6.1-10-win-x64-setup.exe`. Installs to `%LOCALAPPDATA%\Programs\RGBPrompt` (no admin), creates Start Menu / Desktop shortcuts, and registers `rgbprompt://` plus `.lep` in HKCU. Uninstall removes those and the app directory, and does **not** delete user data under `%LOCALAPPDATA%\RGBPrompt`.
+Output default name: `RGBPrompt-Player-0.7.0-11-win-x64-setup.exe`. Installs to `%LOCALAPPDATA%\Programs\RGBPrompt` (no admin), creates Start Menu / Desktop shortcuts, and registers `rgbprompt://` plus `.lep` in HKCU. Uninstall removes those and the app directory, and does **not** delete user data under `%LOCALAPPDATA%\RGBPrompt`.
 
 ## USB keyboard passthrough
 
