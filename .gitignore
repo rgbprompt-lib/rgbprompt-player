@@ -3,6 +3,7 @@
 .vscode/*
 node_modules/
 dist/
+package.json.pack-backup
 build/
 coverage/
 *.tsbuildinfo

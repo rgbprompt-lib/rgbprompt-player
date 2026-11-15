@@ -1,13 +1,50 @@
 {
   "name": "@rgbprompt/safety",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.6.0",
+  "private": false,
+  "description": "Real-time output stage shared by RGBPrompt previews and the Player.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rgbprompt-lib/rgbprompt-player.git",
+    "directory": "packages/safety"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
   "type": "module",
+  "files": [
+    "dist",
+    "data",
+    "constants.json",
+    "LICENSE",
+    "README.md"
+  ],
   "exports": {
     ".": "./src/index.ts",
-    "./player": "./src/entries/player.ts",
-    "./constants.json": "./constants.json",
-    "./vectors/*": "./vectors/*"
+    "./player": "./src/entries/player.ts"
+  },
+  "publishConfig": {
+    "access": "public",
+    "scripts": {},
+    "devDependencies": {},
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "worker": "./dist/index.js",
+        "browser": "./dist/index.js",
+        "import": "./dist/index.js",
+        "default": "./dist/index.js"
+      },
+      "./player": {
+        "types": "./dist/entries/player.d.ts",
+        "worker": "./dist/entries/player.js",
+        "browser": "./dist/entries/player.js",
+        "import": "./dist/entries/player.js",
+        "default": "./dist/entries/player.js"
+      },
+      "./player-iife": "./dist/player/safety.iife.js"
+    }
   },
   "dependencies": {
     "@rgbprompt/engine": "workspace:*",
@@ -17,7 +54,9 @@
     "esbuild": "0.28.2"
   },
   "scripts": {
-    "build": "node scripts/build.mjs",
+    "build": "node ../../tools/pack/emit.mjs && node scripts/build.mjs",
+    "prepack": "pnpm run build && node ../../tools/pack/stage.mjs",
+    "postpack": "node ../../tools/pack/restore.mjs",
     "bench": "node scripts/bench.mjs",
     "bench:range": "node scripts/bench-range.mjs",
     "lint": "eslint .",

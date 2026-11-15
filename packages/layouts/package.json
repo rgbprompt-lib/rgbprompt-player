@@ -1,12 +1,44 @@
 {
   "name": "@rgbprompt/layouts",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.6.0",
+  "private": false,
+  "description": "Keyboard geometry shared by the RGBPrompt engine and safety limiter.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rgbprompt-lib/rgbprompt-player.git",
+    "directory": "packages/layouts"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
   "type": "module",
+  "files": [
+    "dist",
+    "data",
+    "LICENSE",
+    "README.md"
+  ],
   "exports": {
     ".": "./src/index.ts"
   },
+  "publishConfig": {
+    "access": "public",
+    "scripts": {},
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "worker": "./dist/index.js",
+        "browser": "./dist/index.js",
+        "import": "./dist/index.js",
+        "default": "./dist/index.js"
+      }
+    }
+  },
   "scripts": {
+    "build": "node ../../tools/pack/emit.mjs",
+    "prepack": "pnpm run build && node ../../tools/pack/stage.mjs",
+    "postpack": "node ../../tools/pack/restore.mjs",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"

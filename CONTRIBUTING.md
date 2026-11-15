@@ -37,6 +37,11 @@ Engine behaviour is guarded by the golden corpus in `tools/golden` and by
 compares per-frame CRC32 with the stored vectors. A change that alters rendered
 frames needs an explanation and updated golden data.
 
+`pnpm pack:check` (part of `pnpm check`) packs `@rgbprompt/layouts`,
+`@rgbprompt/engine`, and `@rgbprompt/safety` at version `0.6.0` and renders the
+golden corpus through a clean install of those tarballs. See
+[docs/adr/0001-reusable-engine-package.md](docs/adr/0001-reusable-engine-package.md).
+
 `pnpm pins:check` (part of `pnpm check`) hashes two public oracle files. The
 paths and expected hashes are in `tools/golden/pins.json`. Update a pin only in
 the same commit as an intentional protocol or audio-analyser change. See

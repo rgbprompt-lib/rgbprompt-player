@@ -3,7 +3,8 @@
 Reference TypeScript implementation of the offline flash detector (`detectFlashes`) and the
 pass-through output stage (`createLimiter`). Product decision 2026-11-12: there is no
 photosensitivity limit; `detectFlashes` is diagnostic only and `createLimiter` does not alter frames.
-The shared Player core runs the same bundle inside QuickJS (ADR-0014).
+The shared Player core runs the same bundle inside QuickJS (ADR-0014). Version `0.6.0`
+is the packed package. See [docs/adr/0001-reusable-engine-package.md](../../docs/adr/0001-reusable-engine-package.md).
 
 ## Fixed-point luminance
 

@@ -2,7 +2,8 @@
 
 Layout data and key-name mapping for RGBPrompt (ENGINE.md §4). The dependency direction is
 `engine -> layouts`: this package never imports `@rgbprompt/engine`; the engine imports its board
-tables and re-exports its keyboard helpers.
+tables and re-exports its keyboard helpers. Version `0.6.0` is the packed package.
+See [docs/adr/0001-reusable-engine-package.md](../../docs/adr/0001-reusable-engine-package.md).
 
 ## Data (`data/`)
 

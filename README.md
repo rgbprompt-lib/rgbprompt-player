@@ -71,7 +71,7 @@ Prerequisites: Node 22.18 (`.nvmrc`) with Corepack (pnpm 9.15.4), Rust 1.96.0
 corepack enable
 corepack prepare pnpm@9.15.4 --activate
 pnpm install --frozen-lockfile
-pnpm check                      # format, lint, typecheck, JS tests, golden corpus, oracle pins
+pnpm check                      # format, lint, typecheck, JS tests, golden corpus, oracle pins, package tarballs
 pnpm build:bundles              # engine.iife.js + safety.iife.js
 pnpm player:iife                # player IIFE frame CRCs against the golden vectors
 pnpm player:parity              # IIFE CRCs, then QuickJS golden + limiter parity

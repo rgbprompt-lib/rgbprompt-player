@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "version": "0.6.0",
+  "packages": {
+    "@rgbprompt/layouts": {
+      "version": "0.6.0",
+      "contentSha256": "0143ad62463dc897f2f6db98ef80658a8e7bceda2209c0aab147d4456812fca8"
+    },
+    "@rgbprompt/engine": {
+      "version": "0.6.0",
+      "contentSha256": "ed97e78996ca6ac09d73641c0a85d0f1a299be8671807912e68a06c58ffdd3ac"
+    },
+    "@rgbprompt/safety": {
+      "version": "0.6.0",
+      "contentSha256": "8498b016244f08fc6148830e33079cd33e45c7bfe33a59043f4454df38d1cdcc"
+    }
+  }
+}
