@@ -11,7 +11,7 @@ param(
   [Parameter(Mandatory = $true)]
   [string]$OutputDir,
   [string]$IssPath = "",
-  [string]$OutputBase = "RGBPrompt-Player-0.6.1-10-win-x64-setup"
+  [string]$OutputBase = "RGBPrompt-Player-0.7.0-11-win-x64-setup"
 )
 
 $ErrorActionPreference = "Stop"

@@ -13,7 +13,7 @@
 ; Compile with tools/win/pack-setup.ps1 (ISCC from Inno Setup 6).
 
 #define AppName "RGBPrompt Player"
-#define AppVersion "0.6.1"
+#define AppVersion "0.7.0"
 #define AppPublisher "RGBPrompt"
 #define AppExeName "RGBPrompt.Player.exe"
 #ifndef SourceTree
@@ -23,7 +23,7 @@
   #define OutputDir "."
 #endif
 #ifndef OutputBase
-  #define OutputBase "RGBPrompt-Player-0.6.1-10-win-x64-setup"
+  #define OutputBase "RGBPrompt-Player-0.7.0-11-win-x64-setup"
 #endif
 
 [Setup]
