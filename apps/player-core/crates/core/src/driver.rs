@@ -2008,6 +2008,11 @@ mod tests {
 
     #[test]
     fn install_fails_closed_without_a_hash() {
+        // install() returns Installed when RGBP_BUNDLED_OPENRGB names a file.
+        // The bundled-helper test sets that variable, and lib tests run in
+        // parallel, so this test holds the same lock and clears it first.
+        let _guard = bundled_env_lock();
+        unsafe { std::env::remove_var("RGBP_BUNDLED_OPENRGB") };
         let install_root =
             std::env::temp_dir().join(format!("rgbprompt-driver-unverified-{}", random_suffix()));
         let json = manifest_json(
