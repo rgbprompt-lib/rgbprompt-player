@@ -3,19 +3,26 @@
 // Run from a package script. Declaration specifiers are rewritten from `.ts`
 // to `.js` so a consumer can resolve them without the TypeScript sources.
 import { spawnSync } from 'node:child_process';
-import { readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
-const root = process.cwd();
-rmSync(join(root, 'dist'), { recursive: true, force: true });
+// Launch tsc with node. `spawnSync('pnpm')` on Windows returns ENOENT before
+// any compiler output: CreateProcess does not resolve pnpm.cmd.
+export function tscLaunch(execPath = process.execPath) {
+  const tscJs = fileURLToPath(new URL('../../node_modules/typescript/lib/tsc.js', import.meta.url));
+  return { command: execPath, args: [tscJs, '-p', 'tsconfig.emit.json'] };
+}
 
-const tsc = spawnSync('pnpm', ['exec', 'tsc', '-p', 'tsconfig.emit.json'], {
-  cwd: root,
-  stdio: 'inherit',
-});
-if (tsc.status !== 0) process.exit(tsc.status ?? 1);
-
-rewriteDeclarations(join(root, 'dist'));
+export function invokedDirectly() {
+  const entry = process.argv[1];
+  if (!entry) return false;
+  try {
+    return realpathSync(entry) === realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    return pathToFileURL(entry).href === import.meta.url;
+  }
+}
 
 function rewriteDeclarations(dir) {
   for (const name of readdirSync(dir)) {
@@ -30,3 +37,18 @@ function rewriteDeclarations(dir) {
     if (next !== text) writeFileSync(path, next);
   }
 }
+
+function emit() {
+  const root = process.cwd();
+  rmSync(join(root, 'dist'), { recursive: true, force: true });
+  const launch = tscLaunch();
+  const tsc = spawnSync(launch.command, launch.args, { cwd: root, stdio: 'inherit' });
+  if (tsc.error) {
+    console.error(`emit: failed to start tsc (${tsc.error.code}): ${tsc.error.message}`);
+    process.exit(1);
+  }
+  if (tsc.status !== 0) process.exit(tsc.status ?? 1);
+  rewriteDeclarations(join(root, 'dist'));
+}
+
+if (invokedDirectly()) emit();

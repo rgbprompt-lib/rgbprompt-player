@@ -70,9 +70,17 @@ function fail(message) {
 }
 
 function run(command, args, cwd) {
-  const result = spawnSync(command, args, { cwd, encoding: 'utf8' });
-  if (result.status !== 0) {
-    fail(`${command} ${args.join(' ')} failed in ${cwd}\n${result.stdout || ''}${result.stderr || ''}`);
+  // Windows CreateProcess does not resolve pnpm.cmd. cmd.exe does.
+  const result = spawnSync(command, args, {
+    cwd,
+    encoding: 'utf8',
+    shell: process.platform === 'win32' && command === 'pnpm',
+  });
+  if (result.error || result.status !== 0) {
+    const spawnError = result.error ? `${result.error.code}: ${result.error.message}\n` : '';
+    fail(
+      `${command} ${args.join(' ')} failed in ${cwd}\n${spawnError}${result.stdout || ''}${result.stderr || ''}`,
+    );
   }
   return result.stdout;
 }
@@ -85,7 +93,12 @@ function listTar(tarball) {
 }
 
 function tarFile(tarball, path) {
-  return spawnSync('tar', ['-xOf', tarball, path], { cwd: ROOT }).stdout;
+  const result = spawnSync('tar', ['-xOf', tarball, path], { cwd: ROOT });
+  if (result.error || result.status !== 0) {
+    const spawnError = result.error ? `${result.error.code}: ${result.error.message}` : '';
+    fail(`tar ${path} failed\n${spawnError}${result.stderr || ''}`);
+  }
+  return result.stdout;
 }
 
 function contentSha256(tarball) {
