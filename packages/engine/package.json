@@ -1,14 +1,65 @@
 {
   "name": "@rgbprompt/engine",
   "version": "0.6.0",
-  "private": true,
+  "private": false,
+  "description": "RGBPrompt lighting engine: validate, render, and encode .lep effects.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rgbprompt-lib/rgbprompt-player.git",
+    "directory": "packages/engine"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
   "type": "module",
+  "files": [
+    "dist",
+    "data",
+    "LICENSE",
+    "README.md"
+  ],
   "exports": {
     ".": "./src/index.ts",
     "./server": "./src/entries/server.ts",
     "./web": "./src/entries/web.ts",
-    "./player": "./src/entries/player.ts",
-    "./dist/*": "./dist/*"
+    "./player": "./src/entries/player.ts"
+  },
+  "publishConfig": {
+    "access": "public",
+    "scripts": {},
+    "devDependencies": {},
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "worker": "./dist/index.js",
+        "browser": "./dist/index.js",
+        "import": "./dist/index.js",
+        "default": "./dist/index.js"
+      },
+      "./server": {
+        "types": "./dist/entries/server.d.ts",
+        "worker": "./dist/entries/server.js",
+        "browser": "./dist/entries/server.js",
+        "import": "./dist/entries/server.js",
+        "default": "./dist/entries/server.js"
+      },
+      "./web": {
+        "types": "./dist/entries/web.d.ts",
+        "worker": "./dist/entries/web.js",
+        "browser": "./dist/entries/web.js",
+        "import": "./dist/entries/web.js",
+        "default": "./dist/entries/web.js"
+      },
+      "./player": {
+        "types": "./dist/entries/player.d.ts",
+        "worker": "./dist/entries/player.js",
+        "browser": "./dist/entries/player.js",
+        "import": "./dist/entries/player.js",
+        "default": "./dist/entries/player.js"
+      },
+      "./player-iife": "./dist/player/engine.iife.js"
+    }
   },
   "dependencies": {
     "@rgbprompt/layouts": "workspace:*"
@@ -17,7 +68,9 @@
     "esbuild": "0.28.2"
   },
   "scripts": {
-    "build": "node scripts/build.mjs",
+    "build": "node ../../tools/pack/emit.mjs && node scripts/build.mjs",
+    "prepack": "pnpm run build && node ../../tools/pack/stage.mjs",
+    "postpack": "node ../../tools/pack/restore.mjs",
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.json",
     "test": "node --test test/*.test.js"

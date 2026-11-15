@@ -16,8 +16,8 @@ migration happened under the golden guard (ADR-0007).
 The engine is fully TypeScript strict. Node ≥ 22.18 runs `.ts` directly by stripping types, so
 workspace consumers keep compiling `src/` through the package exports (`"."`, `"./server"`,
 `"./web"`, `"./player"`). Distribution builds are separate: `pnpm --filter @rgbprompt/engine build`
-writes `dist/server`, `dist/web` and `dist/player` bundles with esbuild and a `dist/sizes.json`
-(ADR-0013).
+writes `dist/` (JavaScript and declarations) and `dist/player/engine.iife.js`
+(ADR-0013, [docs/adr/0001-reusable-engine-package.md](../../docs/adr/0001-reusable-engine-package.md)).
 
 Modules must use **erasable** TypeScript syntax only: no `enum`, `namespace`, parameter properties,
 `import =` or decorators. `packages/engine/tsconfig.json` enforces this with `erasableSyntaxOnly`.
@@ -94,10 +94,12 @@ fields with a declared range such as `meta.seed`, `layer.opacity`, and rain
 - `src/entries/player.ts` — `.lep` `decode`, renderer stepping helpers, constants and types. No
   encoder and no `normalize`-from-DSL.
 
-`pnpm build` emits ESM and (for web/player) IIFE bundles. Client outputs are minified, have no
-source maps or comments, and the player output drops `console`. `pnpm player:iife` loads
-`dist/player/engine.iife.js` and checks every golden frame CRC against the committed vectors.
-That check uses only files in this repository.
+`pnpm build` emits JavaScript and `.d.ts` next to the sources' module graph, then the
+QuickJS player IIFE at `dist/player/engine.iife.js`. That IIFE is the only bundled copy. It
+drops `console`, has no source map, and is the file `apps/player-core` embeds. `pnpm player:iife`
+checks every golden frame CRC against it. The workspace still imports `src/` while developing.
+The packed package, described in [docs/adr/0001-reusable-engine-package.md](../../docs/adr/0001-reusable-engine-package.md),
+exports the emitted JavaScript instead.
 
 ## Tests
 
