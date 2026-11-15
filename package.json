@@ -31,7 +31,9 @@
     "player:core:mac": "bash tools/player/build-core-mac.sh",
     "player:mac:build": "bash tools/player/build-mac.sh",
     "player:mac:test": "bash tools/player/test-mac.sh",
-    "player:mac:layout": "node tools/player/gen-mac-layout.mjs"
+    "player:mac:layout": "node tools/player/gen-mac-layout.mjs",
+    "player:diagnostics:check": "node tools/player/diagnostics-check.mjs",
+    "player:mac:release": "bash tools/player/sign-notarize-mac.sh"
   },
   "devDependencies": {
     "@eslint/js": "9.39.5",

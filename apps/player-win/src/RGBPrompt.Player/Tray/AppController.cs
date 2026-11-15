@@ -1,3 +1,4 @@
+using System.Reflection;
 using RGBPrompt.Player;
 using RGBPrompt.Player.Core.Interop;
 using RGBPrompt.Player.Core.Models;
@@ -44,7 +45,7 @@ public sealed class AppController : IDisposable
             storedApiBase: null,
             storedOpenRgb: null,
             embeddedApiBase: null,
-            appVersion: typeof(AppController).Assembly.GetName().Version?.ToString(3) ?? "0.6.0",
+            appVersion: PlayerVersion(),
             osVersionString: Environment.OSVersion.VersionString,
             cultureName: cultureName,
             localAppData: localAppData);
@@ -60,6 +61,18 @@ public sealed class AppController : IDisposable
 
         _input = new InputCoordinator(_bridge, new WasapiAudioCapture(), new LowLevelKeyCapture());
         _devices = new DeviceNotificationService(() => _ = _bridge.NotifyDevicesChanged());
+    }
+
+    static string PlayerVersion()
+    {
+        var informational = typeof(AppController).Assembly
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+        if (!string.IsNullOrWhiteSpace(informational))
+        {
+            var plus = informational.IndexOf('+');
+            return plus >= 0 ? informational[..plus] : informational;
+        }
+        return typeof(AppController).Assembly.GetName().Version?.ToString(3) ?? "0.6.0";
     }
 
     public void Start()
@@ -263,8 +276,14 @@ public sealed class AppController : IDisposable
     public void Quit()
     {
         _ = _bridge.Stop();
+        if (Microsoft.UI.Xaml.Application.Current is App app)
+        {
+            app.Shutdown();
+            return;
+        }
         Dispose();
-        Microsoft.UI.Xaml.Application.Current.Exit();
+        Microsoft.UI.Xaml.Application.Current?.Exit();
+        Environment.Exit(0);
     }
 
     /// <summary>Windows counterpart of the Mac "打开活动监视器" button on the vendor card.</summary>
@@ -368,7 +387,10 @@ public sealed class AppController : IDisposable
     {
         _input.Dispose();
         _devices.Dispose();
-        _tray.Dispose();
+        // Stop the core/managed helper before disposing the tray: Quit is
+        // invoked from the tray menu, and tray disposal must not be able to
+        // skip the helper cleanup if it throws.
         _bridge.Dispose();
+        _tray.Dispose();
     }
 }

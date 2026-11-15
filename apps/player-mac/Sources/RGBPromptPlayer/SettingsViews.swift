@@ -6,6 +6,7 @@ final class SettingsViewActions {
     var makeDefault: () -> Void = {}
     var checkForUpdates: () -> Void = {}
     var copyDiagnostics: () -> Bool = { false }
+    var openLicenses: () -> Void = {}
 }
 
 struct SettingsRootView: View {
@@ -296,6 +297,12 @@ struct SettingsRootView: View {
             .buttonStyle(.plain)
             Button(action: copyDiagnostics) {
                 Text(L10n.tr(copied ? "settings.footer.copied" : "settings.footer.copyDiagnostics"))
+                    .font(Typography.sans(12))
+                    .foregroundStyle(Theme.accent)
+            }
+            .buttonStyle(.plain)
+            Button(action: actions.openLicenses) {
+                Text(L10n.tr("settings.footer.licenses"))
                     .font(Typography.sans(12))
                     .foregroundStyle(Theme.accent)
             }

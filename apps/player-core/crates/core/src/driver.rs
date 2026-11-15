@@ -99,7 +99,7 @@ impl Manifest {
         if manifest.version.is_empty() || manifest.executable.is_empty() {
             return Err("manifest needs a version and an executable".to_string());
         }
-        if manifest.urls.is_empty() {
+        if manifest.archive != "bundle" && manifest.urls.is_empty() {
             return Err("manifest needs at least one URL".to_string());
         }
         for url in &manifest.urls {
@@ -139,6 +139,37 @@ pub struct InstallMarker {
     pub version: String,
     pub sha256: String,
     pub executable: String,
+}
+
+/// OpenRGB shipped inside the Player (macOS: Contents/Helpers/OpenRGB.app;
+/// Windows installer layout, once bundled: OpenRGB-RGBPrompt/OpenRGB.exe
+/// next to the Player executable). Tests can point `RGBP_BUNDLED_OPENRGB`
+/// at a stub binary. This is preferred over a downloaded or side-by-side copy.
+fn bundled_openrgb_executable() -> Option<PathBuf> {
+    if let Ok(path) = std::env::var("RGBP_BUNDLED_OPENRGB") {
+        let path = PathBuf::from(path);
+        if path.is_file() {
+            return Some(path);
+        }
+    }
+    let exe = std::env::current_exe().ok()?;
+    let dir = exe.parent()?;
+    let candidates = if cfg!(target_os = "windows") {
+        vec![dir.join("OpenRGB-RGBPrompt").join("OpenRGB.exe")]
+    } else {
+        vec![
+            dir.join("../Helpers/OpenRGB.app/Contents/MacOS/OpenRGB"),
+            dir.join("../Resources/runtime/OpenRGB.app/Contents/MacOS/OpenRGB"),
+        ]
+    };
+    for candidate in candidates {
+        if let Ok(canon) = candidate.canonicalize() {
+            if canon.is_file() {
+                return Some(canon);
+            }
+        }
+    }
+    None
 }
 
 /// Side-by-side OpenRGB builds under the Player data dir (PLAYER §4 / M6-M2).
@@ -671,12 +702,13 @@ impl ManagedDriver {
     fn launch_at(&self, port: u16) -> Result<(), DriverFailure> {
         let shared = &self.shared;
         let addr = SocketAddr::from(([127, 0, 0, 1], port));
-        let side = side_by_side_executable(&shared.install_root);
+        let override_exe =
+            bundled_openrgb_executable().or_else(|| side_by_side_executable(&shared.install_root));
         let mut child = match spawn_child(
             &shared.manifest(),
             &shared.install_root,
             port,
-            side.as_deref(),
+            override_exe.as_deref(),
         ) {
             Ok(child) => child,
             Err(error) => {
@@ -770,6 +802,9 @@ impl ManagedDriver {
     }
 
     fn installed_info(&self) -> (bool, Option<InstallMarker>, Option<PathBuf>) {
+        if let Some(bundled) = bundled_openrgb_executable() {
+            return (true, None, Some(bundled));
+        }
         let marker = InstallMarker::read(&self.shared.install_root);
         let managed = marker.as_ref().is_some_and(|value| {
             self.shared
@@ -895,6 +930,16 @@ impl DriverProvider for ManagedDriver {
         let cancel = self.cancel_flag();
         cancel.store(false, Ordering::SeqCst);
         shared.emit(DriverEvent::Progress(0));
+
+        // A bundled OpenRGB is already on disk; never download it.
+        if bundled_openrgb_executable().is_some() || manifest.archive == "bundle" {
+            if bundled_openrgb_executable().is_some() {
+                shared.emit(DriverEvent::Progress(100));
+                return InstallResult::Installed;
+            }
+            shared.set_last_error(Some(DriverFailure::Unverified));
+            return InstallResult::Failed(DriverFailure::Unverified);
+        }
 
         let Some(expected_sha) = manifest.sha256.clone() else {
             shared.set_last_error(Some(DriverFailure::Unverified));
@@ -1100,8 +1145,9 @@ impl DriverProvider for ManagedDriver {
         } else {
             None
         };
-        // A side-by-side app under ~/.rgbprompt is treated as verified so the
-        // shell does not offer a download of an unpinned official build.
+        // A bundled helper (or a side-by-side app under the data dir) is
+        // treated as verified so the shell does not offer a download.
+        // `archive: "bundle"` alone is not enough: the helper must be present.
         let verified = manifest.sha256.is_some() || side_by_side.is_some();
         let install_dir = if let Some(path) = side_by_side.as_ref() {
             path.parent()
@@ -1163,7 +1209,9 @@ impl DriverProvider for ManagedDriver {
     }
 
     fn installable(&self) -> bool {
-        self.shared.manifest().sha256.is_some()
+        bundled_openrgb_executable().is_some()
+            || self.shared.manifest().archive == "bundle"
+            || self.shared.manifest().sha256.is_some()
     }
 
     fn shutdown(&self) {
@@ -1520,6 +1568,22 @@ fn extract_zip(part: &Path, install_root: &Path, manifest: &Manifest) -> Result<
     })
 }
 
+/// The Qt-free OpenRGB helper is a CUI binary. When the GUI Player spawns it
+/// with piped stdout/stderr, Windows would otherwise give it a visible console
+/// window. CREATE_NO_WINDOW keeps the console hidden; pipes and logging still
+/// work, and the helper keeps its current subsystem (no OpenRGB rebuild).
+#[cfg_attr(not(windows), allow(dead_code))]
+const OPENRGB_CREATE_NO_WINDOW: u32 = 0x0800_0000;
+
+#[cfg(windows)]
+fn apply_openrgb_spawn_flags(command: &mut Command) {
+    use std::os::windows::process::CommandExt;
+    command.creation_flags(OPENRGB_CREATE_NO_WINDOW);
+}
+
+#[cfg(not(windows))]
+fn apply_openrgb_spawn_flags(_command: &mut Command) {}
+
 fn spawn_child(
     manifest: &Manifest,
     install_root: &Path,
@@ -1532,24 +1596,17 @@ fn spawn_child(
     let _ = fs::create_dir_all(&config_dir);
     let port = port.to_string();
     let config = config_dir.display().to_string();
-    // Side-by-side apps use the same server flags; skip --config when the
-    // override binary lives outside the managed install tree.
-    let args: Vec<String> = if override_executable.is_some() {
-        vec![
-            "--server".to_string(),
-            "--server-port".to_string(),
-            port.clone(),
-        ]
-    } else {
-        manifest
-            .args
-            .iter()
-            .map(|arg| {
-                arg.replace("{port}", &port)
-                    .replace("{config_dir}", &config)
-            })
-            .collect()
-    };
+    // Always honor the manifest, including `--config`, so a bundled helper
+    // writes into the Player data dir instead of the user's default profile.
+    // Side-by-side overrides used to skip --config; isolation is preferred.
+    let args: Vec<String> = manifest
+        .args
+        .iter()
+        .map(|arg| {
+            arg.replace("{port}", &port)
+                .replace("{config_dir}", &config)
+        })
+        .collect();
 
     let mut command = Command::new(executable);
     command
@@ -1557,6 +1614,7 @@ fn spawn_child(
         .stdin(Stdio::null())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped());
+    apply_openrgb_spawn_flags(&mut command);
     let mut child = command.spawn()?;
     let log_path = install_root.join("openrgb.log");
     let sink = Arc::new(LogSink::new(log_path, LOG_CAP_BYTES));
@@ -1719,7 +1777,9 @@ fn respawn(shared: &DriverShared, control: &ProcessControl) -> Result<(), Driver
         &shared.manifest(),
         &shared.install_root,
         control.port,
-        side_by_side_executable(&shared.install_root).as_deref(),
+        bundled_openrgb_executable()
+            .or_else(|| side_by_side_executable(&shared.install_root))
+            .as_deref(),
     )
     .map_err(|error| spawn_failure(&error))?;
     {
@@ -1897,9 +1957,15 @@ mod tests {
                     assert!(manifest.sha256.as_ref().is_some_and(|sha| sha.len() == 64));
                 }
             } else {
-                assert_eq!(manifest.variant, ManifestVariant::Standard);
-                // macOS stays fail-closed until its official archive is hashed.
-                assert!(manifest.sha256.is_none(), "macOS shipped manifest stays fail-closed");
+                // macOS ships OpenRGB inside the Player (Contents/Helpers).
+                assert_eq!(manifest.variant, ManifestVariant::Tuned);
+                assert_eq!(manifest.archive, "bundle");
+                assert!(manifest.urls.is_empty());
+                assert!(manifest.sha256.is_none());
+                assert_eq!(
+                    manifest.source,
+                    "https://github.com/rgbprompt-lib/openrgb-rgbprompt"
+                );
             }
         }
     }
@@ -1960,6 +2026,170 @@ mod tests {
         );
         assert!(!install_root.join("installed.json").exists());
         let _ = fs::remove_dir_all(&install_root);
+    }
+
+    fn bundled_env_lock() -> std::sync::MutexGuard<'static, ()> {
+        static LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+        LOCK.lock().unwrap_or_else(|e| e.into_inner())
+    }
+
+    #[test]
+    fn bundled_openrgb_installs_without_downloading() {
+        let dir = std::env::temp_dir().join(format!("rgbprompt-bundled-{}", random_suffix()));
+        fs::create_dir_all(&dir).unwrap();
+        let stub = dir.join("bundled-openrgb");
+        fs::write(&stub, b"#!/bin/sh\n").unwrap();
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            let _ = fs::set_permissions(&stub, fs::Permissions::from_mode(0o755));
+        }
+        let _guard = bundled_env_lock();
+        // SAFETY: exclusive via bundled_env_lock; only these tests touch the var.
+        unsafe { std::env::set_var("RGBP_BUNDLED_OPENRGB", &stub) };
+        let json = r#"{
+            "schema": 1,
+            "variant": "tuned",
+            "version": "test",
+            "platform": "macos",
+            "arch": "arm64",
+            "archive": "bundle",
+            "size_bytes": 0,
+            "sha256": null,
+            "executable": "OpenRGB.app/Contents/MacOS/OpenRGB",
+            "args": ["--server", "--server-port", "{port}", "--config", "{config_dir}"],
+            "urls": [],
+            "license": "GPL-2.0-only",
+            "source": "https://github.com/rgbprompt-lib/openrgb-rgbprompt"
+        }"#;
+        let driver = ManagedDriver::with_manifest(
+            "127.0.0.1:9".parse().unwrap(),
+            dir.join("openrgb"),
+            Manifest::from_json(json).unwrap(),
+            DriverTimings::default(),
+        );
+        assert_eq!(driver.install(), InstallResult::Installed);
+        let info = driver.info();
+        assert!(info.installed);
+        assert!(info.verified);
+        assert_eq!(info.executable.as_deref(), Some(stub.to_str().unwrap()));
+        unsafe { std::env::remove_var("RGBP_BUNDLED_OPENRGB") };
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn bundled_manifest_without_helper_does_not_download() {
+        let _guard = bundled_env_lock();
+        unsafe { std::env::remove_var("RGBP_BUNDLED_OPENRGB") };
+        let json = r#"{
+            "schema": 1,
+            "variant": "tuned",
+            "version": "test",
+            "platform": "macos",
+            "arch": "arm64",
+            "archive": "bundle",
+            "size_bytes": 0,
+            "sha256": null,
+            "executable": "OpenRGB.app/Contents/MacOS/OpenRGB",
+            "args": [],
+            "urls": [],
+            "license": "GPL-2.0-only",
+            "source": "https://github.com/rgbprompt-lib/openrgb-rgbprompt"
+        }"#;
+        let install_root =
+            std::env::temp_dir().join(format!("rgbprompt-bundle-missing-{}", random_suffix()));
+        let driver = ManagedDriver::with_manifest(
+            "127.0.0.1:9".parse().unwrap(),
+            install_root.clone(),
+            Manifest::from_json(json).unwrap(),
+            DriverTimings::default(),
+        );
+        assert_eq!(
+            driver.install(),
+            InstallResult::Failed(DriverFailure::Unverified)
+        );
+        assert!(!install_root.join(".download").exists());
+        let _ = fs::remove_dir_all(&install_root);
+    }
+
+    #[test]
+    fn openrgb_create_no_window_flag_is_stable() {
+        // Static guard for the Windows helper console fix. The flag is applied
+        // by apply_openrgb_spawn_flags() in spawn_child() on Windows.
+        assert_eq!(OPENRGB_CREATE_NO_WINDOW, 0x0800_0000);
+    }
+
+    #[cfg(unix)]
+    fn pid_is_alive(pid: i32) -> bool {
+        unsafe extern "C" {
+            fn kill(pid: i32, sig: i32) -> i32;
+        }
+        // SAFETY: signal 0 only probes the process; no signal is delivered.
+        unsafe { kill(pid, 0) == 0 }
+    }
+
+    #[test]
+    #[cfg(unix)]
+    fn shutdown_stops_managed_child_but_not_external_process() {
+        let dir = std::env::temp_dir().join(format!("rgbprompt-shutdown-{}", random_suffix()));
+        fs::create_dir_all(&dir).unwrap();
+        let manifest = Manifest::from_json(&manifest_json(
+            "null",
+            r#"[{ "kind": "official", "url": "http://127.0.0.1:1/a.zip" }]"#,
+        ))
+        .unwrap();
+        let driver = ManagedDriver::with_manifest(
+            "127.0.0.1:6742".parse().unwrap(),
+            dir.clone(),
+            manifest,
+            DriverTimings::default(),
+        );
+
+        // Two harmless sleepers: one recorded as our managed child, one only
+        // standing in for the user's independently started OpenRGB.
+        let managed = Command::new("/bin/sleep").arg("60").spawn().unwrap();
+        let managed_pid = managed.id() as i32;
+        let mut external = Command::new("/bin/sleep").arg("60").spawn().unwrap();
+        let external_pid = external.id() as i32;
+
+        let control = Arc::new(ProcessControl {
+            child: Mutex::new(managed),
+            stop: AtomicBool::new(false),
+            port: 6742,
+            addr: "127.0.0.1:6742".parse().unwrap(),
+            started: Mutex::new(Instant::now()),
+        });
+        let supervisor = thread::spawn(|| {});
+        {
+            let mut inner = driver.shared.inner.lock().unwrap();
+            inner.mode = DriverMode::Managed {
+                addr: "127.0.0.1:6742".parse().unwrap(),
+                port: 6742,
+                version: "test".to_string(),
+            };
+            inner.process = Some(ManagedProcess {
+                control,
+                supervisor,
+            });
+        }
+
+        driver.shutdown();
+        driver.shutdown(); // idempotent: no managed process remains
+
+        let managed_alive = pid_is_alive(managed_pid);
+        let external_alive = pid_is_alive(external_pid);
+        let _ = external.kill();
+        let _ = external.wait();
+        let _ = fs::remove_dir_all(&dir);
+
+        assert!(
+            !managed_alive,
+            "shutdown must stop the recorded managed child"
+        );
+        assert!(
+            external_alive,
+            "shutdown must not kill an unrelated process"
+        );
     }
 }
 

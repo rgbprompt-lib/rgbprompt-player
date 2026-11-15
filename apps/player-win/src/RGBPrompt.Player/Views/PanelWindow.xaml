@@ -6,19 +6,27 @@
     <!-- Layout and metrics follow the Mac PanelRootView (PanelViews.swift):
          48 header, then the now-playing view or a state card (16 side and
          bottom padding), or the effect picker in place of both. The window
-         sizes itself to this content at width 340. -->
+         sizes itself to this content at width 340. The header sits above
+         the ScrollViewer so the top bar is the drag region, not a scrolled
+         child, and ⋯ / × stay outside the SetTitleBar element. -->
     <Grid x:Name="RootGrid" RequestedTheme="Dark"
           AllowDrop="True" DragOver="Root_DragOver" DragLeave="Root_DragLeave" Drop="Root_Drop">
-        <ScrollViewer x:Name="RootScroll" VerticalScrollBarVisibility="Hidden" HorizontalScrollMode="Disabled"
-                      IsTabStop="True" UseSystemFocusVisuals="False">
-        <StackPanel x:Name="RootStack" Width="340" VerticalAlignment="Top">
-            <Grid x:Name="HeaderBar" Height="48" Padding="16,0,8,0" Background="Transparent"
-                  PointerPressed="HeaderBar_PointerPressed">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="48" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid x:Name="HeaderBar" Height="48" Padding="16,0,8,0" Background="Transparent">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid x:Name="HeaderDragRegion" Background="Transparent"
+                  AutomationProperties.Name="RGBPrompt">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Image x:Name="PanelMark" Width="18" Height="18" VerticalAlignment="Center" />
                 <TextBlock x:Name="AppNameText" Grid.Column="1" Margin="8,0,0,0" VerticalAlignment="Center" />
@@ -28,10 +36,14 @@
                     <TextBlock x:Name="StatusText" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"
                                VerticalAlignment="Center" />
                 </StackPanel>
-                <StackPanel x:Name="HeaderButtons" Grid.Column="3" Orientation="Horizontal" Spacing="6"
-                            Margin="8,0,0,0" VerticalAlignment="Center" />
             </Grid>
+            <StackPanel x:Name="HeaderButtons" Grid.Column="1" Orientation="Horizontal" Spacing="6"
+                        Margin="8,0,0,0" VerticalAlignment="Center" />
+        </Grid>
 
+        <ScrollViewer x:Name="RootScroll" Grid.Row="1" VerticalScrollBarVisibility="Hidden" HorizontalScrollMode="Disabled"
+                      IsTabStop="True" UseSystemFocusVisuals="False">
+        <StackPanel x:Name="RootStack" Width="340" VerticalAlignment="Top">
             <StackPanel x:Name="MainHost" Padding="16,0,16,16">
                 <Border x:Name="HeroCard" CornerRadius="10" BorderThickness="1">
                     <Grid>
@@ -90,6 +102,6 @@
             <TextBlock x:Name="ConflictHint" TextWrapping="Wrap" Margin="16,0,16,12" Visibility="Collapsed" />
         </StackPanel>
         </ScrollViewer>
-        <Border x:Name="DropOutline" BorderThickness="1.5" IsHitTestVisible="False" Visibility="Collapsed" />
+        <Border x:Name="DropOutline" Grid.RowSpan="2" BorderThickness="1.5" IsHitTestVisible="False" Visibility="Collapsed" />
     </Grid>
 </Window>

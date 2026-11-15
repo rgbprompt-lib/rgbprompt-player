@@ -34,4 +34,19 @@ public class EntryPointTests
         Assert.NotNull(entry);
         Assert.True(entry!.RevealsPanel);
     }
+
+    [Fact]
+    public void CollectLaunchEntries_ReadsCommandLineAndActivationWhenMainArgsEmpty()
+    {
+        var exe = new[] { "RGBPrompt.Player.exe" };
+        var process = new[] { "RGBPrompt.Player.exe", "rgbprompt://play?t=abc&v=1" };
+        var entries = EntryPoint.CollectLaunchEntries(exe, process, null).ToList();
+        Assert.Single(entries);
+        Assert.IsType<EntryPoint.PlayerUrl>(entries[0]);
+
+        var fromActivation = EntryPoint.CollectLaunchEntries(
+            exe, exe, "rgbprompt://play?t=def&v=1").ToList();
+        Assert.Single(fromActivation);
+        Assert.Equal(new Uri("rgbprompt://play?t=def&v=1"), ((EntryPoint.PlayerUrl)fromActivation[0]).Url);
+    }
 }

@@ -102,9 +102,8 @@ Web                         API                         Player
 
 | 项 | 规则 |
 | --- | --- |
-| 解析顺序 | ① 配置地址（`RgbpConfig.openrgb_addr`，默认 `127.0.0.1:6742`）上已有 OpenRGB SDK server 应答 `REQUEST_PROTOCOL_VERSION` 握手（≤ 500 ms）→ 直接使用，`version: "external"`。这是用户自己的 OpenRGB，内核**从不**启动、停止或重启它（用户已经开着 OpenRGB 且识别到键盘；再起一份会争抢设备）。② 否则若 `data_dir/openrgb` 下有有效安装（`installed.json` 有效且可执行文件存在）→ 在「配置端口起的 8 个端口」（默认 6742–6749）中第一个空闲端口（`bind 127.0.0.1:<port>` 成功）无头启动，等待握手（≤ 10 s，每 200 ms 轮询）；被占用但能握手的端口按情况 ① 当作外部 server。③ 否则 `Missing` → `NeedsDriver`。 |
-| 版本 | macOS：官方 OpenRGB 1.0（arm64）。Windows x64：我们的补丁版（`variant: tuned`，K552 / EVision 320F:5000 Direct，上游 MR !3809），地址为 github.com/rgbprompt-lib/openrgb-rgbprompt 的 GitHub Release `f81fd32-evision.1` 资产（源码、补丁与构建脚本在同一仓库），清单已填实测 `size_bytes` / `sha256`；CDN 镜像对象尚不存在，暂不列出。开发期两端都可用 Debug-only `RGBP_DEV_DRIVER_MANIFEST` 指向本地补丁包。版本、大小与 SHA-256 写在内置清单 `crates/core/data/manifests/openrgb-{macos,windows}.json`（`include_str!`，按目标 OS 选一份）；服务端签名清单更新留到后续。**macOS 清单的 `sha256` 仍为 `null`、`size_bytes` 为 `0`**：真实发布的大小与哈希在 M6-M2 / M6-W3 真机测量后再填。`sha256: null` 时安装**失败关闭**（`RGBP_ERR_NOT_SUPPORTED` 的语义：状态保持 `NeedsDriver`，诊断 `driver_unverified`），代码绝不下载无法校验的文件。 |
-| 来源 | 清单中的 URL 按顺序尝试（official，然后 mirror）。只允许 `https://`，或 `http://` 指向 `127.0.0.1` / `localhost` / `[::1]`（测试），与 `TokenClient` 同一规则；不新增 `RGBP_` 环境变量覆盖。 |
+| 解析顺序 | ① 配置地址（`RgbpConfig.openrgb_addr`，默认 `127.0.0.1:6742`）上已有 OpenRGB SDK server 应答 `REQUEST_PROTOCOL_VERSION` 握手（≤ 500 ms）→ 直接使用，`version: "external"`。这是用户自己的 OpenRGB，内核**从不**启动、停止或重启它（用户已经开着 OpenRGB 且识别到键盘；再起一份会争抢设备）。② 否则若 Player 内置了 OpenRGB（macOS：`Contents/Helpers/OpenRGB.app`；Windows 安装布局：与 Player exe 同目录的 `OpenRGB-RGBPrompt/OpenRGB.exe`；测试可用 `RGBP_BUNDLED_OPENRGB`）→ 在「配置端口起的 8 个端口」（默认 6742–6749）中第一个空闲端口（`bind 127.0.0.1:<port>` 成功）无头启动（`--server --server-port --config`，配置写在 `data_dir` 下），等待握手（≤ 10 s，每 200 ms 轮询）；被占用但能握手的端口按情况 ① 当作外部 server。③ 否则若 `data_dir/openrgb` 下有有效安装（`installed.json` 有效且可执行文件存在）→ 同样按空闲端口无头启动。④ 否则 `Missing` → `NeedsDriver`。macOS 生产清单 `archive: "bundle"`：**不再下载** OpenRGB；若内置助手缺失，安装失败（`Unverified`）并应提示重装 Player。Windows 在安装器尚未内置之前仍走清单 zip 下载。 |
+| 版本 | 两端均使用我们的补丁版 OpenRGB（`variant: tuned`，K552 / EVision 320F:5000 Direct，上游 MR !3809），来源为 github.com/rgbprompt-lib/openrgb-rgbprompt 的 GitHub Release `f81fd32-evision.1`（源码、补丁与构建脚本在同一仓库）。macOS：OpenRGB 内置于 `RGBPrompt Player.app/Contents/Helpers/OpenRGB.app`，内置清单 `openrgb-macos.json` 的 `archive` 为 `"bundle"`，无下载 URL / `sha256`；内核启动内置助手，生产路径不再下载。Windows：安装器落地前仍用内置清单 `openrgb-windows.json` 的 zip（已填实测 `size_bytes` / `sha256`）；内置后应改为 `archive: "bundle"` 并随安装包提供 `OpenRGB-RGBPrompt/OpenRGB.exe`。开发期两端都可用 Debug-only `RGBP_DEV_DRIVER_MANIFEST` 指向本地补丁包。 |
 | 位置 | `install_root = <data_dir>/openrgb`。外壳传 `data_dir` = `~/.rgbprompt`（Mac）/ `%LOCALAPPDATA%\RGBPrompt`（Windows）。只写 `data_dir`，永不动「应用程序」/ Program Files 或用户已有的 OpenRGB。 |
 | 同意 | `rgbp_install_driver(h)` 就是用户点「安装」：仅在 `NeedsDriver` 接受（否则 `RGBP_ERR_INVALID_ARGUMENT`），在 worker 线程执行，C 调用立即返回。逐个 URL 下载到 `<install_root>/.download/<sha256>.part`（`ureq` + rustls，connect 15 s，响应头 30 s，禁用环境代理）。按 2 MiB 一段发 HTTP `Range` 请求（每段硬期限 60 s，相当于停滞检测，约 35 KiB/s 以下才会触发），从 part 已有长度续传；断开或停滞的段带退避重试（1/2/4/8 s，连续 5 次没有新字节才换下一个 URL，有新字节就清零计数）；服务器不支持 `Range`（回 200）时改为整文件一次流式下载（期限 30 min）。不再设整次下载总超时：实测 VM 到 Codeberg / GitHub Releases 约 175–210 KB/s，22 MB 需约 125 s，旧的 30 s body / 120 s 总超时必然中途失败。下完后对整个文件算 SHA-256，超过 `size_bytes + 1 MiB` 中止。校验失败 / 过大 → 删除 part、试下一个 URL；HTTP / IO 错误 → **保留** part（文件名即 SHA-256，内容同源可续），下一个 URL 或下一次「安装」从断点续传。校验通过 → 解压到 `<install_root>/.staging-<random>`（`zip` crate，仅 deflate；拒绝绝对路径、`..`、越界符号链接；保留 Unix 执行位）→ 重命名为 `<install_root>/<variant>-<version>/` → **最后**写 `<install_root>/installed.json`（`{ schema, variant, version, sha256, executable }`），崩溃不会留下有效标记。安装完成按解析顺序 ② 继续播放并再次 ack。下载中 `rgbp_stop` 取消（每块检查原子标志）、删除 part，并 ack `failed / driver_declined`。 |
 | 进度 | 状态事件 `driver_progress`：下载时 0..100（每个整百分比最多一次），解压 / 启动时 100，其余 −1。 |
@@ -112,7 +111,7 @@ Web                         API                         Player
 | 启动 / 监督 | 参数模板来自清单（`{port}`、`{config_dir}` 替换），stdout/stderr 写 `<install_root>/openrgb.log`（每次启动截断，上限 1 MiB）。supervisor 线程每 500 ms `try_wait`；意外退出 → 诊断 `driver_crashed`，同一端口按 1 s / 2 s / 4 s 退避重启；60 s 内超过 3 次 → 停止重启，状态 `BackendUnresponsive`。`rgbp_restart_backend(h)`：managed → kill、重启、重连、恢复当前灯效；external → 只重连（绝不向不是自己启动的进程发信号）。`rgbp_destroy` kill 并回收 managed 子进程。 |
 | macOS 阻止 | spawn 返回 `PermissionDenied`，或子进程在启动 2 s 内被 `SIGKILL` → `Blocked` + `driver_error = 4`；`rgbp_retry` 重新启动。自行下载不设置 quarantine，不调用 `xattr` / `spctl`。 |
 | 范围 | 仅 USB 键盘；Windows 不启用需要管理员的 SMBus（内存/主板灯）。 |
-| 许可 | OpenRGB 为 GPL-2.0，作为**独立进程**运行、未修改的官方二进制，Player 自身不受传染；下载页与关于窗口注明来源与许可。 |
+| 许可 | OpenRGB 为 GPL-2.0，作为**独立进程**随 Player 内置运行（macOS：`Contents/Helpers/OpenRGB.app`；此副本含 K552 / EVision Direct 补丁）。Player 自身不受传染。设置页脚「开源许可 / Licenses」打开随包的 GPL-2.0 全文、NOTICE，以及源码地址 https://github.com/rgbprompt-lib/openrgb-rgbprompt。 |
 | 调优版（P1） | 清单 `variant` 为 `standard` 或 `tuned`（本任务只建模，不切换）。命中已知卡顿型号时提供调优版 OpenRGB（只改内存灯效路径，不刷固件），征得同意才下载，可切回；调优版须公开其源码修改（GPL 义务）。 |
 
 #### 4.1 清单覆盖、驱动监督与外部驱动丢失
@@ -120,7 +119,7 @@ Web                         API                         Player
 | 项 | 规则 |
 | --- | --- |
 | 清单覆盖（D2） | `rgbp_set_driver_manifest_json(h, json)`：与内置清单同一 schema / URL 规则（https，或 http 仅 loopback），且 `sha256` 必须非空；仅在 `Idle` / `NeedsDriver` 且没有安装进行（`driver_progress < 0`）时接受，否则 `RGBP_ERR_INVALID_ARGUMENT`。替换下一次安装 / 启动使用的清单，可在任何播放前调用；ABI 版本仍为 2。 |
-| 生产 / 开发清单（D1） | 生产清单 `openrgb-macos.json` 指向公开上游 OpenRGB 发布；`sha256` / `size_bytes` 在发布产物测量前保持 `null` / `0`。开发构建可用 Debug-only 的 `RGBP_DEV_DRIVER_MANIFEST`（文件路径）在启动时覆盖为本地调优版；Release 构建没有这条代码路径。K552 的逐键 Direct 依赖上游 MR CalcProgrammer1/OpenRGB!3809。清单的 `executable` 是相对安装目录的 `.app/Contents/MacOS/...` 路径；`args` 模板保留 `{port}` / `{config_dir}`。 |
+| 生产 / 开发清单（D1） | macOS 生产清单 `openrgb-macos.json` 的 `archive` 为 `"bundle"`（`variant: tuned`，`f81fd32-evision.1`），无下载 URL；`install()` 在内置助手存在时直接 `Installed`，缺失时失败且不访问网络。Windows 清单在安装器内置完成前仍指向 GitHub Release zip 并带实测 `sha256` / `size_bytes`。开发构建可用 Debug-only 的 `RGBP_DEV_DRIVER_MANIFEST`（文件路径）在启动时覆盖；Release 构建没有这条代码路径。K552 的逐键 Direct 依赖上游 MR CalcProgrammer1/OpenRGB!3809。清单的 `executable` / `args` 仍保留 `{port}` / `{config_dir}` 模板，内置启动也会传入 `--config`。 |
 | 驱动信息 | `rgbp_driver_info_json` 增加 `verified`（清单 `sha256` 非空）与 `supervision: { state, crashes, crashLimit, external }`。`state` = `none` / `running` / `restarting` / `gaveUp` / `externalLost`；`restarting` = managed 子进程已退出且 supervisor 正在退避或重启；`gaveUp` = supervisor 放弃；`externalLost` = 上次成功模式是外部且最近一次探测失败（探测成功后清除）；`external` = 上次成功模式是外部。 |
 | 事件发布 | `DriverEvent::Crashed` / `Launched` / `GaveUp` 后也发布状态事件，外壳随事件重新读取驱动信息；`GaveUp` 且没有预编译灯效时，下一次自动重扫仍显示 `BackendUnresponsive`。 |
 | 外部驱动丢失（D4） | `supervision.state == externalLost` 时，自动重扫（`watch_tick` / `devices_changed`）只探测配置地址，**不**回退到启动 managed 驱动，避免抢占用户 OpenRGB 的 6742 端口。外部服务器恢复应答后下一次 tick 自动重连并以同一灯效恢复播放（预编译灯效保留）。只有用户显式 `rgbp_retry` / `rgbp_restart_backend` 才走完整解析顺序（外部 → managed → `NeedsDriver`）。 |
@@ -336,7 +335,7 @@ Cargo workspace，`rust-toolchain.toml` 固定版本；不进 pnpm workspace，�
 | 开机启动 | `SMAppService.mainApp` 包在 `LoginItemControlling` 协议后；`LoginItemModel` 把 `.enabled` / `.requiresApproval` 视为开，`.notFound` 禁用开关，注册失败回滚并显示错误；默认关，从不自动注册；每次打开设置窗口重读状态；`requiresApproval` 提供 `SMAppService.openSystemSettingsLoginItems()` 链接 |
 | 签名 | Developer ID Application + Hardened Runtime + 公证（`notarytool`）+ staple；entitlements 最小化（QuickJS 是解释器，不需要 JIT entitlement） |
 | 更新 | Sparkle 2（EdDSA 签名的 appcast，托管在 R2） |
-| 体积 | 目标 < 5 MB（内核 + QuickJS + 两个 bundle；不打包 OpenRGB） |
+| 体积 | 目标约 40–50 MB 安装包 / 约 110 MB 已安装 .app（内核 + QuickJS + 两个 bundle + 内置已签名的 OpenRGB；Apple 芯片） |
 | 最低系统 | macOS 14.2（系统音频 tap）；Apple 芯片 |
 
 ### 9.2 Windows 外壳（apps/player-win）
@@ -346,7 +345,7 @@ Cargo workspace，`rust-toolchain.toml` 固定版本；不进 pnpm workspace，�
 | 结构 | C# / WinUI 3（Windows App SDK），.NET 8；`WindowsPackageType=None`（unpackaged）+ `WindowsAppSDKSelfContained=true` + `SelfContained=true`；`RGBPrompt.Player.Interop` 用 `LibraryImport` 声明 C ABI，`rgbprompt_player.dll` 与 exe 同目录。**不用 WebView** |
 | C# 只做 | 托盘图标与菜单（Shell_NotifyIcon 或 H.NotifyIcon.WinUI）、340 宽无边框面板窗口（贴近托盘弹出、失焦隐藏）、设置窗口（400×560）、WASAPI loopback（NAudio 或 CsWin32 直调，默认渲染设备切换时重建 → `rgbp_push_audio_pcm`）、`SetWindowsHookEx(WH_KEYBOARD_LL)`（回调只做 VK → ansi104 键名并入队）、`RegisterDeviceNotification` 插拔通知 |
 | 面板 | XAML 实现 §6 全部状态，文案用与 Mac 同源的 `packages/i18n` 键（构建时生成 `.resw`）；深浅色与高 DPI 跟随系统；托盘图标按任务栏主题切换 |
-| 安装 | 用户级（`%LOCALAPPDATA%\Programs\RGBPrompt`），无需管理员；安装与更新默认用 Velopack（unpackaged 应用的安装 / 增量更新 / 签名校验），M6-W5 定稿；约 30–50 MB（self-contained 运行时 + Windows App SDK + 内核） |
+| 安装 | 用户级（`%LOCALAPPDATA%\Programs\RGBPrompt`），无需管理员；安装与更新默认用 Velopack（unpackaged 应用的安装 / 增量更新 / 签名校验），M6-W5 定稿；约 30–50 MB（self-contained 运行时 + Windows App SDK + 内核）；内置 OpenRGB 后安装包再增加约 22 MB，布局为 exe 旁的 `OpenRGB-RGBPrompt/OpenRGB.exe` |
 | 协议/启动项 | `HKCU\Software\Classes\rgbprompt`、`.lep` 文件关联（`HKCU\Software\Classes\.lep`）、`HKCU\Software\Microsoft\Windows\CurrentVersion\Run`；单实例：第二个进程把参数转交已运行实例后退出 |
 | 签名 | EV 代码签名（安装包、exe、内核 `.dll`；Q28，发布时才需要）；每个版本提交 Microsoft Defender 白名单，发布前多引擎扫描（PLW-08） |
 | 更新 | 后台检查签名清单 → 下载 → 校验签名与哈希 → 下次启动替换（静默） |

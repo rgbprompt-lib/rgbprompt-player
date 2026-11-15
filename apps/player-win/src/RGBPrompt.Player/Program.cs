@@ -1,6 +1,7 @@
 using System.Threading;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
+using RGBPrompt.Player.Core.Models;
 using RGBPrompt.Player.Services;
 
 namespace RGBPrompt.Player;
@@ -13,7 +14,7 @@ public static class Program
     {
         if (!SingleInstance.TryAcquire(out var pipeServer))
         {
-            SingleInstance.ForwardArgsAndExit(args);
+            SingleInstance.ForwardArgsAndExit(LaunchForwardLines(args));
             return;
         }
 
@@ -36,6 +37,33 @@ public static class Program
                 throw;
             }
         });
+    }
+
+    /// <summary>
+    /// Prefer a concrete play URL / .lep path, including cases where unpackaged
+    /// protocol activation left Main argv empty.
+    /// </summary>
+    static string[] LaunchForwardLines(string[] mainArgs)
+    {
+        var lines = new List<string>();
+        foreach (var entry in EntryPoint.CollectLaunchEntries(
+            new[] { Environment.ProcessPath ?? "RGBPrompt.Player" }.Concat(mainArgs),
+            Environment.GetCommandLineArgs(),
+            ProtocolActivation.UriString()))
+        {
+            switch (entry)
+            {
+                case EntryPoint.PlayerUrl url:
+                    if (!lines.Contains(url.Url.AbsoluteUri))
+                        lines.Add(url.Url.AbsoluteUri);
+                    break;
+                case EntryPoint.LepFile file:
+                    if (!lines.Contains(file.Path))
+                        lines.Add(file.Path);
+                    break;
+            }
+        }
+        return lines.Count > 0 ? lines.ToArray() : mainArgs;
     }
 }
 

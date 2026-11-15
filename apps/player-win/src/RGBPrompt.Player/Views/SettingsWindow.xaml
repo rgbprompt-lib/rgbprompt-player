@@ -3,16 +3,22 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <!-- Mac SettingsRootView (SettingsViews.swift): 400×560 content under our own
-         32 DIP title bar (no system caption). Rows are built in code. -->
+         32 DIP title bar (no system caption). Rows are built in code. The title
+         text is the drag region; the close button sits outside SetTitleBar. -->
     <Grid x:Name="Root" RequestedTheme="Dark">
         <Grid.RowDefinitions>
             <RowDefinition Height="32" />
             <RowDefinition Height="560" />
         </Grid.RowDefinitions>
-        <Grid x:Name="TitleBar" Background="Transparent" Padding="14,0,6,0"
-              PointerPressed="TitleBar_PointerPressed">
-            <TextBlock x:Name="TitleText" VerticalAlignment="Center" />
-            <StackPanel x:Name="TitleButtons" HorizontalAlignment="Right" VerticalAlignment="Center" />
+        <Grid x:Name="TitleBar" Padding="14,0,6,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid x:Name="TitleDragRegion" Background="Transparent">
+                <TextBlock x:Name="TitleText" VerticalAlignment="Center" />
+            </Grid>
+            <StackPanel x:Name="TitleButtons" Grid.Column="1" VerticalAlignment="Center" />
         </Grid>
         <Grid x:Name="Body" Grid.Row="1" Padding="22,18,22,22" RowSpacing="16">
             <Grid.RowDefinitions>

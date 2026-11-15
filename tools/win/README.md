@@ -73,6 +73,17 @@ Never runs `pnpm install`.
 - [ ] `tools\win\pack.ps1` produces a local Velopack release
 - [ ] No automatic upload
 
+Until an EV cert (Q28) is available, pack a conventional per-user Inno Setup 6 installer instead of Velopack. This path does **not** Authenticode-sign, does **not** install an auto-updater, and does **not** bypass SmartScreen:
+
+```powershell
+# Once: winget install --id JRSoftware.InnoSetup --exact
+powershell -ExecutionPolicy Bypass -File tools\win\pack-setup.ps1 `
+  -SourceTree <published-player-tree> `
+  -OutputDir <out>
+```
+
+Output default name: `RGBPrompt-Player-0.6.1-10-win-x64-setup.exe`. Installs to `%LOCALAPPDATA%\Programs\RGBPrompt` (no admin), creates Start Menu / Desktop shortcuts, and registers `rgbprompt://` plus `.lep` in HKCU. Uninstall removes those and the app directory, and does **not** delete user data under `%LOCALAPPDATA%\RGBPrompt`.
+
 ## USB keyboard passthrough
 
 Attach the Redragon K552 USB device to the VM while testing W3/W4. The Mac host

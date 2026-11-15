@@ -65,7 +65,9 @@ final class PanelController {
         panel.level = .popUpMenu
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
         // Movable only through the header drag handle (`WindowDragArea`); the
-        // panel stays borderless, so it can't be resized or zoomed.
+        // panel stays borderless, so it can't be resized or zoomed. Background
+        // move stays off so the body, drop target and controls do not start a
+        // drag.
         panel.isMovable = true
         panel.isMovableByWindowBackground = false
         panel.hidesOnDeactivate = false
@@ -251,27 +253,66 @@ private final class PanelWindow: NSPanel {
     }
 }
 
-/// A transparent strip that drags its window. Borderless panels have no title
-/// bar, so the header hands the mouse-down to `performDrag`.
+/// A transparent strip that fills its SwiftUI container and drags its window.
+///
+/// Borderless panels have no title bar. The 48-point header (logo, name,
+/// status — not the ⋯ / × buttons) hosts this view so the drag region is the
+/// whole top bar. `performDrag(with:)` is AppKit's move loop; it ends on
+/// mouse-up, mouse-up outside, cancel, and focus loss, without a custom
+/// mouse-moved tracker. `isMovableByWindowBackground` stays off so body
+/// controls and the drop target do not start a drag.
 struct WindowDragArea: NSViewRepresentable {
     static let didRequestReset = Notification.Name("RGBPromptPlayer.windowDragArea.didRequestReset")
 
     func makeNSView(context: Context) -> NSView {
-        DragView()
+        let view = DragView()
+        view.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        view.setContentHuggingPriority(.defaultLow, for: .vertical)
+        view.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        view.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+        view.autoresizingMask = [.width, .height]
+        return view
     }
 
-    func updateNSView(_ nsView: NSView, context: Context) {}
+    func updateNSView(_ nsView: NSView, context: Context) {
+        nsView.resetCursorRects()
+    }
 
     private final class DragView: NSView {
-        override var mouseDownCanMoveWindow: Bool { true }
+        override init(frame frameRect: NSRect) {
+            super.init(frame: frameRect)
+            // Let VoiceOver keep reading the title and status under this overlay.
+            setAccessibilityElement(false)
+        }
+
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
+        override var intrinsicContentSize: NSSize {
+            NSSize(width: NSView.noIntrinsicMetric, height: NSView.noIntrinsicMetric)
+        }
+
+        override func resetCursorRects() {
+            addCursorRect(bounds, cursor: .openHand)
+        }
+
+        override func layout() {
+            super.layout()
+            window?.invalidateCursorRects(for: self)
+        }
 
         override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
             true
         }
 
+        override func hitTest(_ point: NSPoint) -> NSView? {
+            bounds.contains(point) ? self : nil
+        }
+
         override func mouseDown(with event: NSEvent) {
-            guard let window else { return }
-            if event.clickCount == 2 {
+            guard let window, event.type == .leftMouseDown else { return }
+            if event.clickCount >= 2 {
                 NotificationCenter.default.post(name: WindowDragArea.didRequestReset, object: window)
                 return
             }

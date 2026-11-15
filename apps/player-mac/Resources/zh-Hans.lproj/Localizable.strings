@@ -177,6 +177,7 @@
 "settings.footer.checkUpdates" = "检查更新";
 "settings.footer.copyDiagnostics" = "复制诊断信息";
 "settings.footer.copied" = "已复制";
+"settings.footer.licenses" = "开源许可";
 "panel.createEffect" = "创作你自己的灯效 →";
 "panel.presets.title" = "预设灯效";
 "panel.presets.audio" = "声控";

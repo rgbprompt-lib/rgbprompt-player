@@ -342,7 +342,7 @@ extension BridgeIntegrationTests {
         )
     }
 
-    func testBuiltInManifestFailsClosed() async throws {
+    func testBuiltInBundleWithoutHelperStaysUnverified() async throws {
         let (_, lepPath) = try fixturePaths()
         let tempDirectory = try makeTempDir("rgbprompt-builtin")
         dataDir = tempDirectory
@@ -361,7 +361,10 @@ extension BridgeIntegrationTests {
         }
         XCTAssertTrue(needsDriver, "states: \(bridge.state)")
         XCTAssertFalse(bridge.driverInfo?.isVerified ?? true)
-        XCTAssertEqual(bridge.installDriver(), .failure(.notSupported))
+        // Production macOS ships OpenRGB in Contents/Helpers. The test host
+        // has no helper, so install is accepted and fails closed without a
+        // download (driver_error 5, unverified).
+        XCTAssertNil(bridge.installDriver())
         let unverified = await waitUntil(timeout: 5) {
             if case .needsDriver(_, 5) = bridge.state { return true }
             return false

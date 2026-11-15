@@ -26,15 +26,20 @@ bash "$ROOT/tools/player/build-core-mac.sh"
 cd "$ROOT"
 "${XCODEGEN:-xcodegen}" generate --spec apps/player-mac/project.yml
 
-xcodebuild \
-    -project apps/player-mac/RGBPromptPlayer.xcodeproj \
-    -scheme RGBPromptPlayer \
-    -configuration "$CONFIG" \
-    -derivedDataPath apps/player-mac/build \
-    -destination "platform=macOS,arch=arm64" \
-    CODE_SIGN_IDENTITY=- \
-    CODE_SIGN_STYLE=Manual \
-    build
+XCODEBUILD_ARGS=(
+    -project apps/player-mac/RGBPromptPlayer.xcodeproj
+    -scheme RGBPromptPlayer
+    -configuration "$CONFIG"
+    -derivedDataPath apps/player-mac/build
+    -destination "platform=macOS,arch=arm64"
+    CODE_SIGN_IDENTITY=-
+    CODE_SIGN_STYLE=Manual
+)
+if [[ -n "${XCODEBUILD_JOBS:-}" ]]; then
+    XCODEBUILD_ARGS+=(-jobs "$XCODEBUILD_JOBS")
+fi
+
+xcodebuild "${XCODEBUILD_ARGS[@]}" build
 
 APP="$ROOT/apps/player-mac/build/Build/Products/$CONFIG/RGBPrompt Player.app"
 if [ ! -d "$APP" ]; then

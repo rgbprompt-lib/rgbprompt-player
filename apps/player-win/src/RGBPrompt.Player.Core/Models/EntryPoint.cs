@@ -46,4 +46,29 @@ public abstract record EntryPoint
         }
         return null;
     }
+
+    /// <summary>
+    /// Gathers playable entries from Main argv, the process command line, and
+    /// an optional protocol activation URI. The caller deduplicates via
+    /// <see cref="LaunchEntryQueue"/>.
+    /// </summary>
+    public static IEnumerable<EntryPoint> CollectLaunchEntries(
+        IEnumerable<string> mainArgs,
+        IEnumerable<string>? processCommandLineArgs = null,
+        string? protocolActivationUri = null)
+    {
+        if (FromLaunchArguments(mainArgs) is { } fromMain)
+            yield return fromMain;
+
+        if (processCommandLineArgs is not null
+            && FromLaunchArguments(processCommandLineArgs) is { } fromProcess)
+            yield return fromProcess;
+
+        if (!string.IsNullOrWhiteSpace(protocolActivationUri))
+        {
+            var fromActivation = ClassifyPathOrUrl(protocolActivationUri);
+            if (fromActivation is not Ignored)
+                yield return fromActivation;
+        }
+    }
 }

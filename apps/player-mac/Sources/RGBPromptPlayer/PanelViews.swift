@@ -135,9 +135,16 @@ struct PanelRootView: View {
                 .frame(minWidth: 0, maxWidth: .infinity, alignment: .trailing)
                 .layoutPriority(0)
             }
-            // Everything but the menu button drags the panel.
+            // The whole 48-point header, except the ⋯ / × buttons beside
+            // this stack, is the window drag region. Fill the header height so
+            // the overlay is not limited to the logo/text's intrinsic height.
+            .frame(maxHeight: .infinity)
             .contentShape(Rectangle())
-            .overlay(WindowDragArea())
+            .overlay {
+                WindowDragArea()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .accessibilityHidden(true)
+            }
 
             HStack(spacing: 6) {
                 moreMenu

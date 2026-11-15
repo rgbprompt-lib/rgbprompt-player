@@ -152,6 +152,7 @@ final class AppController {
         settingsActions.makeDefault = { [weak self] in self?.handlerCoordinator.makeDefault() }
         settingsActions.checkForUpdates = { [weak self] in self?.openDownloadPage() }
         settingsActions.copyDiagnostics = { [weak self] in self?.copyDiagnostics() ?? false }
+        settingsActions.openLicenses = { [weak self] in self?.openLicenses() }
 
         input.onShowPanel = { [weak self] in self?.showPanel() }
 
@@ -433,6 +434,17 @@ final class AppController {
         }
         panelController.hide()
         NSWorkspace.shared.open(page)
+    }
+
+    private func openLicenses() {
+        // XcodeGen copies Resources/Licenses/OpenRGB.txt to the bundle
+        // resource root (same as OFL.txt). Keep the subdirectory lookup
+        // in case a future folder-reference build preserves the folder.
+        let url = Bundle.main.url(forResource: "OpenRGB", withExtension: "txt", subdirectory: "Licenses")
+            ?? Bundle.main.url(forResource: "OpenRGB", withExtension: "txt")
+        guard let url else { return }
+        panelController.hide()
+        NSWorkspace.shared.open(url)
     }
 
     private func openSupportedKeyboards() {

@@ -32,7 +32,9 @@ public static class SingleInstance
         try
         {
             using var client = new NamedPipeClientStream(".", PipeName, PipeDirection.Out);
-            client.Connect(500);
+            // Wait long enough for a cold-starting first instance to finish WinUI
+            // Application.Start and begin listening (500 ms was too short).
+            client.Connect(5000);
             using var writer = new StreamWriter(client, Encoding.UTF8) { AutoFlush = true };
             foreach (var arg in args)
                 writer.WriteLine(arg);

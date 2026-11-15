@@ -866,8 +866,9 @@ fn manifest_override_installs_and_plays() {
         Manifest::embedded().clone(),
         short_timings((base, base + 7)),
     ));
-    // Neither embedded manifest is pinned yet: macOS waits on the public
-    // OpenRGB hash, Windows on the patched rgbprompt-lib release.
+    // The macOS embedded manifest is `archive: "bundle"` and is verified only
+    // when Contents/Helpers/OpenRGB.app (or RGBP_BUNDLED_OPENRGB) is present.
+    // This test binary has neither, so the starting manifest is unverified.
     assert!(!driver.info().verified);
     assert!(
         driver.set_manifest(override_manifest),

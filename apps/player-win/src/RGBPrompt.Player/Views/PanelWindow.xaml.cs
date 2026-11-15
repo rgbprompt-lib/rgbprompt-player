@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
@@ -25,9 +24,6 @@ namespace RGBPrompt.Player.Views;
 /// </summary>
 public sealed partial class PanelWindow : Window
 {
-    const uint WmNclButtonDown = 0x00A1;
-    const nint HtCaption = 2;
-
     readonly PlayerCoreBridge _bridge;
     readonly PanelModel _panelModel;
     readonly AppController _controller;
@@ -66,6 +62,10 @@ public sealed partial class PanelWindow : Window
         _appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(id);
         _appWindow.IsShownInSwitchers = false;
         ApplyCustomChrome(_appWindow);
+        // Native WinUI caption region: the 48 DIP header minus ⋯ / ×.
+        // Pointer release, leave, cancel and focus loss end the move;
+        // do not use WM_NCLBUTTONDOWN / ReleaseCapture on the XAML island.
+        SetTitleBar(HeaderDragRegion);
 
         _moreButton = PanelUi.HeaderIcon("\uE712", 12, ShowMoreMenu);
         _closeButton = PanelUi.HeaderIcon("\uE711", 10, _controller.HidePanel);
@@ -143,7 +143,10 @@ public sealed partial class PanelWindow : Window
     {
         // RootStack sits in a ScrollViewer, so it is measured unbounded and
         // ActualHeight is the full content height.
-        var height = Math.Min(PlayerTheme.PanelMaxHeight, Math.Ceiling(RootStack.ActualHeight));
+        // Header sits above the ScrollViewer, so add its 48 DIP row to the
+        // unbounded content stack height.
+        var header = HeaderBar.ActualHeight > 1 ? HeaderBar.ActualHeight : 48;
+        var height = Math.Min(PlayerTheme.PanelMaxHeight, Math.Ceiling(header + RootStack.ActualHeight));
         if (height < 48) return;
         if (!force && Math.Abs(height - _lastHeight) < 0.5) return;
         _lastHeight = height;
@@ -951,26 +954,6 @@ public sealed partial class PanelWindow : Window
         presenter.SetBorderAndTitleBar(hasBorder: true, hasTitleBar: false);
     }
 
-    void HeaderBar_PointerPressed(object sender, PointerRoutedEventArgs e)
-    {
-        if (e.OriginalSource is DependencyObject source && (IsInside(source, _moreButton) || IsInside(source, _closeButton)))
-            return;
-        if (!e.GetCurrentPoint(HeaderBar).Properties.IsLeftButtonPressed) return;
-        ReleaseCapture();
-        SendMessage(Hwnd, WmNclButtonDown, HtCaption, 0);
-    }
-
-    static bool IsInside(DependencyObject source, DependencyObject target)
-    {
-        DependencyObject? cur = source;
-        while (cur != null)
-        {
-            if (ReferenceEquals(cur, target)) return true;
-            cur = VisualTreeHelper.GetParent(cur);
-        }
-        return false;
-    }
-
     // MARK: - Drag and drop
 
     void Root_DragOver(object sender, DragEventArgs e)
@@ -1013,9 +996,4 @@ public sealed partial class PanelWindow : Window
             ?.Path;
     }
 
-    [DllImport("user32.dll")]
-    static extern bool ReleaseCapture();
-
-    [DllImport("user32.dll")]
-    static extern nint SendMessage(IntPtr hWnd, uint msg, nint wParam, nint lParam);
 }

@@ -273,6 +273,7 @@ public enum LocalizationKeys {
         "settings.footer.checkUpdates",
         "settings.footer.copyDiagnostics",
         "settings.footer.copied",
+        "settings.footer.licenses",
         ]
 
     public static var all: [String] {

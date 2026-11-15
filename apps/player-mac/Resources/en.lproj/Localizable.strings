@@ -177,6 +177,7 @@
 "settings.footer.checkUpdates" = "Check for updates";
 "settings.footer.copyDiagnostics" = "Copy diagnostics";
 "settings.footer.copied" = "Copied";
+"settings.footer.licenses" = "Licenses";
 "panel.createEffect" = "Create your own effect →";
 "panel.presets.title" = "Presets";
 "panel.presets.audio" = "Audio";

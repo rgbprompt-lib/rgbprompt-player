@@ -19,8 +19,12 @@
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
-    <ApplicationIcon>Assets\tray.ico</ApplicationIcon>
-    <Version>0.6.0</Version>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+    <Version>0.6.1</Version>
+    <AssemblyVersion>0.6.1.10</AssemblyVersion>
+    <FileVersion>0.6.1.10</FileVersion>
+    <InformationalVersion>0.6.1</InformationalVersion>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <Company>RGBPrompt</Company>
     <Product>RGBPrompt Player</Product>
   </PropertyGroup>
@@ -44,6 +48,9 @@
 
   <ItemGroup>
     <Content Include="Assets\tray.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\app.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <!-- Native core DLL next to the exe (build.ps1 also copies the release build). -->

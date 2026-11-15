@@ -301,4 +301,52 @@ final class PlayerKitUnitTests: XCTestCase {
             conflictName: conflict
         )
     }
+
+    func testLaunchEntryQueueHoldsUrlUntilStart() {
+        var delivered: [EntryPoint] = []
+        let queue = LaunchEntryQueue { delivered.append($0) }
+        let url = URL(string: "rgbprompt://play?t=abc&v=1")!
+        queue.submit(.playerURL(url))
+        XCTAssertEqual(queue.pendingCount, 1)
+        XCTAssertTrue(delivered.isEmpty)
+        queue.start()
+        XCTAssertEqual(delivered, [.playerURL(url)])
+        XCTAssertEqual(queue.pendingCount, 0)
+    }
+
+    func testLaunchEntryQueueDropsDuplicateColdStartUrl() {
+        var delivered: [EntryPoint] = []
+        let queue = LaunchEntryQueue { delivered.append($0) }
+        let url = URL(string: "rgbprompt://play?t=abc&v=1")!
+        queue.submit(.playerURL(url))
+        queue.submit(.playerURL(url))
+        queue.submit(.playerURL(url))
+        queue.start()
+        // argv + GetURL + application(_:open:) must not play the same link twice.
+        XCTAssertEqual(delivered, [.playerURL(url)])
+    }
+
+    func testLaunchEntryQueueDeliversAfterStartAndSkipsImmediateRepeat() {
+        var delivered: [EntryPoint] = []
+        let queue = LaunchEntryQueue { delivered.append($0) }
+        queue.start()
+        let first = URL(string: "rgbprompt://play?t=aaa&v=1")!
+        let second = URL(string: "rgbprompt://play?t=bbb&v=1")!
+        queue.submit(.playerURL(first))
+        queue.submit(.playerURL(first))
+        queue.submit(.playerURL(second))
+        XCTAssertEqual(delivered, [.playerURL(first), .playerURL(second)])
+    }
+
+    func testLaunchEntryQueueIgnoresIgnoredAndKeepsFirstPending() {
+        var delivered: [EntryPoint] = []
+        let queue = LaunchEntryQueue { delivered.append($0) }
+        queue.submit(.ignored)
+        let first = URL(string: "rgbprompt://play?t=first&v=1")!
+        let later = URL(string: "rgbprompt://play?t=later&v=1")!
+        queue.submit(.playerURL(first))
+        queue.submit(.playerURL(later))
+        queue.start()
+        XCTAssertEqual(delivered, [.playerURL(first), .playerURL(later)])
+    }
 }

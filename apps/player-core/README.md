@@ -12,8 +12,9 @@ Platform-independent Rust core shared by the macOS and Windows Players (ADR-0014
 `crates/core/data/` holds the embedded `device-db.json` (initially empty; real devices are
 recorded later), `openrgb-key-names.json` (ANSI104 key → OpenRGB LED names), the driver
 manifests `manifests/openrgb-{macos,windows}.json` (Windows: the patched release
-`f81fd32-evision.1` with its measured `sha256` / `size_bytes`; macOS still ships
-`sha256: null`, so its install fails closed until the real release is measured) and
+`f81fd32-evision.1` with its measured `sha256` / `size_bytes`; macOS uses
+`archive: "bundle"` so the Player launches `Contents/Helpers/OpenRGB.app` and
+never downloads a Mac driver) and
 `vendor-conflicts.json` (PLAYER §8 display names and process patterns).
 `crates/core/tests/data/protocol-cases.json` is the URL table shared with `packages/contracts`.
 

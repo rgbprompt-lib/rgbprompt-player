@@ -1,7 +1,5 @@
-using System.Runtime.InteropServices;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using RGBPrompt.Player.Core.Interop;
 using RGBPrompt.Player.Core.Models;
@@ -18,9 +16,6 @@ namespace RGBPrompt.Player.Views;
 /// </summary>
 public sealed partial class SettingsWindow : Window
 {
-    const uint WmNclButtonDown = 0x00A1;
-    const nint HtCaption = 2;
-
     readonly PlayerCoreBridge _bridge;
     readonly AppController _controller;
     readonly Button _closeButton;
@@ -49,6 +44,8 @@ public sealed partial class SettingsWindow : Window
             presenter.IsMinimizable = false;
             presenter.SetBorderAndTitleBar(hasBorder: true, hasTitleBar: false);
         }
+        // Native WinUI caption region: the 32 DIP title bar minus the close tile.
+        SetTitleBar(TitleDragRegion);
         Root.Background = PlayerTheme.WindowBackgroundBrush;
         TitleText.FontFamily = PlayerTheme.FontSemibold;
         TitleText.FontWeight = PlayerTheme.SemiBold;
@@ -336,28 +333,4 @@ public sealed partial class SettingsWindow : Window
         CornerRadius = new CornerRadius(12),
     };
 
-    void TitleBar_PointerPressed(object sender, PointerRoutedEventArgs e)
-    {
-        if (e.OriginalSource is DependencyObject source && IsInside(source, _closeButton)) return;
-        if (!e.GetCurrentPoint(TitleBar).Properties.IsLeftButtonPressed) return;
-        ReleaseCapture();
-        SendMessage(Hwnd, WmNclButtonDown, HtCaption, 0);
-    }
-
-    static bool IsInside(DependencyObject source, DependencyObject target)
-    {
-        DependencyObject? cur = source;
-        while (cur != null)
-        {
-            if (ReferenceEquals(cur, target)) return true;
-            cur = VisualTreeHelper.GetParent(cur);
-        }
-        return false;
-    }
-
-    [DllImport("user32.dll")]
-    static extern bool ReleaseCapture();
-
-    [DllImport("user32.dll")]
-    static extern nint SendMessage(IntPtr hWnd, uint msg, nint wParam, nint lParam);
 }

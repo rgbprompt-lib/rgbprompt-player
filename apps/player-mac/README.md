@@ -29,6 +29,45 @@ corepack pnpm player:mac:layout # regenerate the Swift ANSI-104 table
 corepack pnpm player:mac:layout -- --check   # fail on drift
 ```
 
+## Signed release (Developer ID + notarization)
+
+`player:mac:build` stays ad-hoc so everyday developer builds do not need a
+Developer ID certificate. To produce a downloadable package, build a Release
+app and then run:
+
+```bash
+# Build first (or pass --build to combine the two steps).
+corepack pnpm player:mac:build
+CODESIGN_IDENTITY="Developer ID Application: lixin li (3ZEMHQZW5S)" \
+  NOTARY_KEYCHAIN_PROFILE=rgbprompt \
+  bash tools/player/sign-notarize-mac.sh \
+    --app "apps/player-mac/build/Build/Products/Release/RGBPrompt Player.app"
+```
+
+The script copies the app (it never resigns the Xcode derived-data tree in
+place), signs every nested Mach-O with the hardened runtime and a secure
+timestamp, applies `apps/player-mac/RGBPromptPlayer.entitlements` only to the
+app bundle, wraps a zip (the format `GET /api/player/download/mac` expects)
+and a DMG, submits the DMG to Apple notary via the `notarytool` keychain
+profile, and staples the ticket to both the `.app` and the DMG. Artifacts
+land in `dist/player-mac/` (gitignored) as
+`RGBPrompt-Player-<version>-<build>-mac-<arch>.zip` and `.dmg`, plus
+`SHA256SUMS.txt` and `build-info.json`.
+
+The only entitlement is `com.apple.security.device.audio-input`, required for
+sound-reactive effects under the hardened runtime. Network, USB/HID matching
+and the listen-only key tap do not need entitlements while App Sandbox is off.
+QuickJS is an interpreter, so there is no JIT entitlement.
+
+The current toolchain and `project.yml` target Apple silicon only (`arm64`).
+The signed release script nests a pre-built, Developer ID-signed OpenRGB.app
+at Contents/Helpers/OpenRGB.app (set OPENRGB_APP, defaulting to the already-built
+artifact under ~/personal/rgbprompt-signing/releases/openrgb-f81fd32-evision.1/OpenRGB.app).
+Daily player:mac:build stays ad-hoc and does not copy the helper. The notarized
+zip/DMG is expected around 40-50 MB. Settings includes a Licenses footer that
+opens the bundled GPL-2.0 notice for OpenRGB
+(https://github.com/rgbprompt-lib/openrgb-rgbprompt).
+
 `player:core:mac` prints the absolute `librgbprompt_player.a` path and size.
 `player:mac:build` runs XcodeGen, builds with ad-hoc signing and prints the
 absolute `.app` path and its size. The Release app lands at:
@@ -108,9 +147,11 @@ buttons. It closes when playback reaches `Playing` or the state returns to
   rescans only probe its address and never spawn Player's own copy; only the
   explicit Retry / Restart backend buttons run full resolution.
 
-The shipped manifest has `sha256: null`, so the Release app fails closed with
-`driver_error = 5` (unverified) and offers Retry for an existing OpenRGB
-instead of a download.
+The macOS shipped manifest is `archive: "bundle"`. When
+`Contents/Helpers/OpenRGB.app` is present, the Player launches it and never
+downloads a driver. If the helper is missing (a broken install or a test
+host), install fails closed with `driver_error = 5` (unverified) and should
+prompt the user to reinstall the Player instead of offering a download.
 
 ### Development manifest override (Debug only)
 
