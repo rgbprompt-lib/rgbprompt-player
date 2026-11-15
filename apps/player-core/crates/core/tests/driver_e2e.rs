@@ -866,15 +866,19 @@ fn manifest_override_installs_and_plays() {
         Manifest::embedded().clone(),
         short_timings((base, base + 7)),
     ));
-    // The macOS embedded manifest is `archive: "bundle"` and is verified only
-    // when Contents/Helpers/OpenRGB.app (or RGBP_BUNDLED_OPENRGB) is present.
-    // This test binary has neither, so the starting manifest is unverified.
-    assert!(!driver.info().verified);
+    // `verified` follows the active manifest: a sha256 counts, and a bundle
+    // without a helper does not. The macOS embedded manifest has sha256 null.
+    // The Windows embedded manifest carries a measured hash, so it starts verified.
+    assert_eq!(
+        driver.info().verified,
+        Manifest::embedded().sha256.is_some()
+    );
     assert!(
         driver.set_manifest(override_manifest),
         "idle override is accepted"
     );
     assert!(driver.info().verified);
+    assert_eq!(driver.info().version, "1.0");
 
     let harness = Harness::start(&http.base_url(), Arc::clone(&driver), &dir);
     harness.send(ServiceCommand::OpenUrl(play_url()));
