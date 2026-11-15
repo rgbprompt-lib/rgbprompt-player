@@ -19,7 +19,7 @@ Player = **共用 Rust 内核**（`apps/player-core`，平台无关，两端同�
 ┌──────────────── Player App ─────────────────────────────────────────────────────┐
 │ 平台外壳（Mac: Swift/SwiftUI  ·  Win: WinUI 3/C#，不用 WebView）                   │
 │  ├─ UI               Mac NSStatusItem + 面板 + 设置窗口 / Win 托盘 + 面板 + 设置窗口   │
-│  ├─ ProtocolEntry    Mac CFBundleURLTypes + UTI / Win HKCU 协议与文件关联 → 转交内核    │
+│  ├─ ProtocolEntry    Mac 正式包 CFBundleURLTypes + UTI / Win 正式安装 HKCU 协议与文件关联 → 转交内核 │
 │  ├─ InputFeeds       SystemAudio（Core Audio tap / WASAPI loopback）→ PCM 推入内核    │
 │  │                   KeyHook（CGEventTap / WH_KEYBOARD_LL）→ 键事件推入内核          │
 │  ├─ HidNotify        IOHIDManager / RegisterDeviceNotification → 通知内核重新扫描     │
@@ -54,6 +54,11 @@ Player = **共用 Rust 内核**（`apps/player-core`，平台无关，两端同�
 | Windows 外壳 | 托盘与面板、设置窗口、WASAPI loopback、WH_KEYBOARD_LL、RegisterDeviceNotification、HKCU 协议 / 文件关联 / Run 项、更新器、EV 签名 |
 
 ## 3. 唤起协议
+
+`rgbprompt://` 只由**正式分发包**向操作系统声明，日常开发构建（包括日常 Release 构建）不得声明或抢占该链接协议。
+
+- Mac：源码树 `apps/player-mac/.../Info.plist` 不含 `CFBundleURLTypes`。正式签名脚本 `tools/player/sign-notarize-mac.sh` 在 ditto 出暂存副本、嵌入 OpenRGB helper 之后、codesign 之前注入 `rgbprompt` scheme，并校验协议与 helper 均在包内。开发构建启动时不会调用 `NSWorkspace.setDefaultApplication`；设置里的「设为默认」也只在当前 bundle 已声明该 scheme 时才会申请成为处理器。`.lep` 的 UTI / 文档类型仍留在源码 plist。
+- Windows：`rgbprompt` 与 `.lep` 的 HKCU 项由正式安装程序 `tools/win/setup.iss` 写入。仅当进程运行于官方安装目录 `%LOCALAPPDATA%\Programs\RGBPrompt` 时，外壳才允许自愈这些键；日常开发 / Release 构建不得写入，以免抢占正式安装。
 
 ### 3.1 URL
 
@@ -333,7 +338,7 @@ Cargo workspace，`rust-toolchain.toml` 固定版本；不进 pnpm workspace，�
 | 设置窗口 | 单个 400 × 560 不可调整的 `NSWindow`，标题「RGBPrompt Player · 设置」；`SettingsWindowController` 持有唯一窗口，再次打开只提到前面；从面板「设置…」（⌘,）打开（先隐藏面板），打开时刷新 `DefaultHandlerCoordinator` 与登录项状态；`SettingsModel` 派生 3 行状态（灯光驱动 / 键盘 / 网页连接）并持久化声音开关与亮度；`LanguageStore` 让面板、两个窗口和状态栏即时换语言；页脚「检查更新」在 Sparkle 落地前打开 `<site>/player`，「复制诊断信息」走共享 `DiagnosticsCopier` |
 | Activation policy | `LSUIElement=YES`；首次设置窗口与设置窗口共用一个引用计数的 `ActivationPolicyCoordinator`：第一个窗口打开 → `.regular`，最后一个关闭 → `.accessory`，关闭其一不会在另一窗口仍开着时降级 |
 | 开机启动 | `SMAppService.mainApp` 包在 `LoginItemControlling` 协议后；`LoginItemModel` 把 `.enabled` / `.requiresApproval` 视为开，`.notFound` 禁用开关，注册失败回滚并显示错误；默认关，从不自动注册；每次打开设置窗口重读状态；`requiresApproval` 提供 `SMAppService.openSystemSettingsLoginItems()` 链接 |
-| 签名 | Developer ID Application + Hardened Runtime + 公证（`notarytool`）+ staple；entitlements 最小化（QuickJS 是解释器，不需要 JIT entitlement） |
+| 签名 | Developer ID Application + Hardened Runtime + 公证（`notarytool`）+ staple；entitlements 最小化（QuickJS 是解释器，不需要 JIT entitlement）。`rgbprompt://` 只在 `tools/player/sign-notarize-mac.sh` 的正式签名阶段注入暂存副本，注入后再签名；日常 Xcode / Release 构建的 Info.plist 不声明该协议。正式包检查必须同时确认 scheme 与 helper 在位。 |
 | 更新 | Sparkle 2（EdDSA 签名的 appcast，托管在 R2） |
 | 体积 | 目标约 40–50 MB 安装包 / 约 110 MB 已安装 .app（内核 + QuickJS + 两个 bundle + 内置已签名的 OpenRGB；Apple 芯片） |
 | 最低系统 | macOS 14.2（系统音频 tap）；Apple 芯片 |
@@ -346,7 +351,7 @@ Cargo workspace，`rust-toolchain.toml` 固定版本；不进 pnpm workspace，�
 | C# 只做 | 托盘图标与菜单（Shell_NotifyIcon 或 H.NotifyIcon.WinUI）、340 宽无边框面板窗口（贴近托盘弹出、失焦隐藏）、设置窗口（400×560）、WASAPI loopback（NAudio 或 CsWin32 直调，默认渲染设备切换时重建 → `rgbp_push_audio_pcm`）、`SetWindowsHookEx(WH_KEYBOARD_LL)`（回调只做 VK → ansi104 键名并入队）、`RegisterDeviceNotification` 插拔通知 |
 | 面板 | XAML 实现 §6 全部状态，文案在本仓库的 WinUI 资源里；深浅色与高 DPI 跟随系统；托盘图标按任务栏主题切换 |
 | 安装 | 用户级（`%LOCALAPPDATA%\Programs\RGBPrompt`），无需管理员；安装与更新默认用 Velopack（unpackaged 应用的安装 / 增量更新 / 签名校验），M6-W5 定稿；约 30–50 MB（self-contained 运行时 + Windows App SDK + 内核）；内置 OpenRGB 后安装包再增加约 22 MB，布局为 exe 旁的 `OpenRGB-RGBPrompt/OpenRGB.exe` |
-| 协议/启动项 | `HKCU\Software\Classes\rgbprompt`、`.lep` 文件关联（`HKCU\Software\Classes\.lep`）、`HKCU\Software\Microsoft\Windows\CurrentVersion\Run`；单实例：第二个进程把参数转交已运行实例后退出 |
+| 协议/启动项 | 仅正式安装写入 `HKCU\Software\Classes\rgbprompt` 与 `.lep`（`tools/win/setup.iss`）。已装正式副本仅在 `%LOCALAPPDATA%\Programs\RGBPrompt` 下自愈这些键；日常开发 / Release 构建不得写入。`HKCU\Software\Microsoft\Windows\CurrentVersion\Run` 仍由用户在设置中选择；单实例：第二个进程把参数转交已运行实例后退出 |
 | 签名 | EV 代码签名（安装包、exe、内核 `.dll`；Q28，发布时才需要）；每个版本提交 Microsoft Defender 白名单，发布前多引擎扫描（PLW-08） |
 | 更新 | 后台检查签名清单 → 下载 → 校验签名与哈希 → 下次启动替换（静默） |
 | 最低系统 | Windows 10 22H2 x64 / Windows 11 |

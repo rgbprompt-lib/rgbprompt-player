@@ -34,17 +34,6 @@
 	<string>Copyright © 2026 RGBPrompt</string>
 	<key>RGBPAPIBase</key>
 	<string>$(RGBP_API_BASE)</string>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleURLName</key>
-			<string>com.rgbprompt.player</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>rgbprompt</string>
-			</array>
-		</dict>
-	</array>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>
