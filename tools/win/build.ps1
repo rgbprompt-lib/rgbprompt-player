@@ -6,15 +6,14 @@
   the system code page (e.g. GBK), and non-ASCII characters break parsing.
 
 .DESCRIPTION
-  Run from the shared repository root inside the Windows VM:
+  Run from this repository's root on Windows:
     powershell -ExecutionPolicy Bypass -File tools\win\build.ps1
 
   Never runs pnpm install. Expects engine / safety player IIFEs and
-  player:fixtures to already exist (produce them on the Mac with
-  tools/win/prepare-mac.sh or: pnpm player:prepare:win).
+  player fixtures to already exist in this repository. Produce them with
+  tools/win/prepare-mac.sh or: pnpm player:prepare:win.
 
-  All Cargo / dotnet outputs go under %LOCALAPPDATA%\rgbprompt-build so the
-  shared folder stays free of Windows artifacts.
+  All Cargo / dotnet outputs go under %LOCALAPPDATA%\rgbprompt-build.
 
   On a 16 GB Parallels VM the workspace Release profile (lto=fat,
   codegen-units=1) can run out of memory. Use -Configuration Debug for
@@ -145,14 +144,14 @@ if (-not ($dotnetVersion.StartsWith("8."))) {
 }
 
 # ---------- Mac-side artifacts ----------
-Write-Step "Checking Mac-built engine / safety / fixtures"
+Write-Step "Checking engine / safety / fixtures"
 
 $engine = Join-Path $RepoRoot "packages\engine\dist\player\engine.iife.js"
 $safety = Join-Path $RepoRoot "packages\safety\dist\player\safety.iife.js"
 $fixtures = Join-Path $RepoRoot "apps\player-core\fixtures\golden\manifest.json"
 foreach ($f in @($engine, $safety, $fixtures)) {
   if (-not (Test-Path $f)) {
-    Fail "Missing $f. On the Mac, from the repo root, run: bash tools/win/prepare-mac.sh   (or: corepack pnpm player:prepare:win)"
+    Fail "Missing $f. From this repository root, run: bash tools/win/prepare-mac.sh   (or: corepack pnpm player:prepare:win)"
   }
   Write-Host "  ok $f"
 }
@@ -170,7 +169,7 @@ if (-not (Test-Path $Lep)) {
 Write-Step "cargo test --workspace --target x86_64-pc-windows-msvc (dev profile)"
 Push-Location $PlayerCore
 try {
-  $cargoArgs = @("test", "--workspace", "--target", "x86_64-pc-windows-msvc")
+  $cargoArgs = @("test", "--locked", "--workspace", "--target", "x86_64-pc-windows-msvc")
   & cargo @cargoArgs
   if ($LASTEXITCODE -ne 0) { Fail "cargo test failed (exit $LASTEXITCODE)" }
 } finally {
@@ -181,7 +180,7 @@ try {
 Write-Step "Building rgbprompt_player.dll"
 Push-Location $PlayerCore
 try {
-  $buildArgs = @("build", "-p", "rgbprompt-player", "--target", "x86_64-pc-windows-msvc")
+  $buildArgs = @("build", "--locked", "-p", "rgbprompt-player", "--target", "x86_64-pc-windows-msvc")
   if ($Configuration -eq "Release") { $buildArgs += "--release" }
   & cargo @buildArgs
   if ($LASTEXITCODE -ne 0) { Fail "cargo build rgbprompt-player failed" }
@@ -200,7 +199,7 @@ Write-Host "  DLL: $Dll  ($([math]::Round((Get-Item $Dll).Length / 1MB, 2)) MB)"
 Write-Step "parity golden"
 Push-Location $PlayerCore
 try {
-  $parityArgs = @("run")
+  $parityArgs = @("run", "--locked")
   if ($Configuration -eq "Release") { $parityArgs += "--release" }
   $parityArgs += @("-p", "parity", "--", "golden")
   & cargo @parityArgs
@@ -221,7 +220,7 @@ Write-Step "MSVC C ABI smoke"
 # do not need a native aarch64 MSVC toolset).
 Push-Location $PlayerCore
 try {
-  $stubArgs = @("build", "-p", "openrgb-stub", "--target", "x86_64-pc-windows-msvc")
+  $stubArgs = @("build", "--locked", "-p", "openrgb-stub", "--target", "x86_64-pc-windows-msvc")
   if ($Configuration -eq "Release") { $stubArgs += "--release" }
   & cargo @stubArgs
   if ($LASTEXITCODE -ne 0) { Fail "openrgb-stub build failed" }

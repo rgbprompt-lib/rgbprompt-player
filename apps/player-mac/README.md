@@ -7,8 +7,8 @@ status item, the panel, URL/file entry points and (later) Core Audio / CGEventTa
 
 ## Prerequisites
 
-- Xcode 27 or newer with the macOS SDK.
-- XcodeGen (`brew install xcodegen`).
+- Xcode 27.2 with the macOS SDK. Public CI selects `/Applications/Xcode_27.2.app` on the `xcode-27` runner.
+- XcodeGen 2.46.0 (`brew install xcodegen`, or the 2.46.0 release zip).
 - Rust 1.96 through the pinned `apps/player-core/rust-toolchain.toml`, with the
   `aarch64-apple-darwin` target.
 - pnpm 9 through Corepack (`corepack pnpm …`).
@@ -60,11 +60,15 @@ and the listen-only key tap do not need entitlements while App Sandbox is off.
 QuickJS is an interpreter, so there is no JIT entitlement.
 
 The current toolchain and `project.yml` target Apple silicon only (`arm64`).
-The signed release script nests a pre-built, Developer ID-signed OpenRGB.app
-at Contents/Helpers/OpenRGB.app (set OPENRGB_APP, defaulting to the already-built
-artifact under ~/personal/rgbprompt-signing/releases/openrgb-f81fd32-evision.1/OpenRGB.app).
-Daily player:mac:build stays ad-hoc and does not copy the helper. The notarized
-zip/DMG is expected around 40-50 MB. Settings includes a Licenses footer that
+Daily `player:mac:build` and `player:mac:test` stay ad-hoc (`CODE_SIGN_IDENTITY=-`)
+and do not copy a helper. Public CI runs `player:mac:test` this way. It starts
+`openrgb-stub` and does not request Input Monitoring, screen recording, or a
+signing certificate.
+
+The optional notarized release script can nest a pre-built, Developer ID-signed
+OpenRGB.app at Contents/Helpers/OpenRGB.app. Set `OPENRGB_APP` to that local
+artifact. The script's default path is a local release directory, not a source
+checkout, and CI never calls the script. Settings includes a Licenses footer that
 opens the bundled GPL-2.0 notice for OpenRGB
 (https://github.com/rgbprompt-lib/openrgb-rgbprompt).
 

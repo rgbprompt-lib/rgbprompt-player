@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  Build just the real Windows Player (DLL + WinUI shell) from this worktree.
+  Build just the real Windows Player (DLL + WinUI shell) from this repository.
 
 .DESCRIPTION
   build.ps1 aborts on a pre-existing unrelated core test
@@ -10,7 +10,7 @@
   test/parity/smoke gates, so a real RGBPrompt.Player.exe can be produced and
   version-verified. It never installs packages, downloads, signs or uploads.
 
-  Run from the shared worktree inside the Windows VM.
+  Run from this repository's root on Windows.
 #>
 [CmdletBinding()]
 param(
@@ -83,7 +83,7 @@ Write-Host "dotnet SDK: $dotnetVersion"
 
 Push-Location (Join-Path $RepoRoot "apps\player-core")
 try {
-  $buildArgs = @("build", "-p", "rgbprompt-player", "--target", "x86_64-pc-windows-msvc")
+  $buildArgs = @("build", "--locked", "-p", "rgbprompt-player", "--target", "x86_64-pc-windows-msvc")
   if ($Configuration -eq "Release") { $buildArgs += "--release" }
   & cargo @buildArgs
   if ($LASTEXITCODE -ne 0) { Fail "cargo build rgbprompt-player failed" }

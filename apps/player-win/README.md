@@ -27,26 +27,33 @@ may show the panel. See `EntryPoint.RevealsPanel` and `Tray/AppController.Open`.
 | `src/RGBPrompt.Player`              | WinUI 3 unpackaged + self-contained app (tray, panel, settings)  |
 | `tests/RGBPrompt.Player.Core.Tests` | xUnit for Core (no WinUI, no native DLL)                         |
 
-## Prerequisites (Windows VM)
+## Prerequisites (Windows)
+
+Public CI runs `tools/win/build.ps1 -Configuration Debug` on `windows-2022` after
+`tools/win/prepare-mac.sh` builds the bundles in that same clone. Debug avoids
+the Release `lto = fat` link, which can exhaust a 16 GB machine. The job does
+not sign, install, or attach a keyboard. A local Windows build uses the same
+scripts in this repository.
 
 - rustup + `x86_64-pc-windows-msvc`
 - Visual Studio 2022 Build Tools — "Desktop development with C++" (x64 tools; on ARM64 also the ARM64-hosted MSVC tools)
-- .NET 8 SDK
-- On the **Mac**, before the VM build: `bash tools/win/prepare-mac.sh` (or `pnpm player:prepare:win`)
+- .NET SDK matching `global.json` (8.0.305, `latestFeature` roll-forward inside the 8.0 band)
+- Bundles and fixtures from this repository: `bash tools/win/prepare-mac.sh` (or `pnpm player:prepare:win`)
 
-Do **not** run `pnpm install` inside the VM (shared `node_modules` is macOS).
+`build.ps1` does not run `pnpm install`. Produce the Node artifacts first, in this clone.
 
-## Build (Windows VM)
+## Build
 
-From the shared repo root:
+From this repository root:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools\win\build.ps1
 ```
 
-Outputs land under `%LOCALAPPDATA%\rgbprompt-build` (not the shared folder).
+Outputs land under `%LOCALAPPDATA%\rgbprompt-build`. A local VM may pass `-Configuration Debug`
+on a 16 GB machine. Public CI does that on `windows-2022`. Neither path signs the app.
 
-## Mac-side checks (no Windows needed)
+## Cross-check without Windows
 
 ```bash
 corepack pnpm player:prepare:win   # engine + safety IIFEs + fixtures

@@ -5,7 +5,7 @@
   OpenRGB-RGBPrompt\OpenRGB.exe, matching the Player manifest layout.
 
 .DESCRIPTION
-  Run inside the Windows VM (shared repo or copied worktree). Never uploads,
+  Run from this repository on Windows. Never uploads,
   signs, commits, or calls pnpm install. All build output stays under
   %LOCALAPPDATA%\rgbprompt-build unless -BuildRoot is supplied.
 

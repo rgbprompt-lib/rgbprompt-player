@@ -1,0 +1,215 @@
+# Public CI for this repository only.
+# contents: read is the only token permission. No signing secrets, no release,
+# no USB, and cargo test does not pass --ignored.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  COREPACK_DEFAULT_TO_LATEST: '0'
+  COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
+  CARGO_TERM_COLOR: always
+
+jobs:
+  pnpm-check:
+    name: pnpm check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+      - name: Enable pnpm
+        run: corepack enable && corepack prepare pnpm@9.15.4 --activate
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: pnpm check
+        run: pnpm check
+
+  player-parity:
+    name: player parity
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      # Release uses lto = fat. Keep the link from saturating a 16 GB runner.
+      CARGO_BUILD_JOBS: '2'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+      - name: Enable pnpm
+        run: corepack enable && corepack prepare pnpm@9.15.4 --activate
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@df2a88e9fe4098bad09cb42c3dec7187f15861fc # 2026-11-15
+        with:
+          toolchain: 1.96.0
+          targets: x86_64-pc-windows-gnu,aarch64-apple-darwin
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: player:parity
+        run: pnpm player:parity
+
+  cargo-test:
+    name: cargo test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+      - name: Enable pnpm
+        run: corepack enable && corepack prepare pnpm@9.15.4 --activate
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@df2a88e9fe4098bad09cb42c3dec7187f15861fc # 2026-11-15
+        with:
+          toolchain: 1.96.0
+          targets: x86_64-pc-windows-gnu,aarch64-apple-darwin
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Build player bundles
+        run: pnpm build:bundles
+      - name: cargo test
+        working-directory: apps/player-core
+        # Default filter skips #[ignore]. The three ignored tests are
+        # live_download_installs_a_real_archive, audio_presets_step_within_budget,
+        # and audio_presets_survive_real_time_playback.
+        run: cargo test --locked --workspace
+
+  windows-gnu:
+    name: windows gnu
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+      - name: Enable pnpm
+        run: corepack enable && corepack prepare pnpm@9.15.4 --activate
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@df2a88e9fe4098bad09cb42c3dec7187f15861fc # 2026-11-15
+        with:
+          toolchain: 1.96.0
+          targets: x86_64-pc-windows-gnu,aarch64-apple-darwin
+      - name: Install mingw-w64
+        # The linker name is apps/player-core/.cargo/config.toml.
+        run: sudo apt-get update && sudo apt-get install -y gcc-mingw-w64-x86-64
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Build player bundles
+        run: pnpm build:bundles
+      - name: player:check:win
+        run: pnpm player:check:win
+
+  macos-playerkit:
+    name: macOS PlayerKit
+    runs-on: xcode-27
+    timeout-minutes: 90
+    env:
+      # Standard macOS runners have 7 GB. Fat LTO is single-threaded either way.
+      CARGO_BUILD_JOBS: '1'
+      IDEBuildOperationMaxNumberOfConcurrentCompileTasks: '2'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Select Xcode 27.2
+        run: |
+          sudo xcode-select -s /Applications/Xcode_27.2.app
+          xcodebuild -version
+      - name: Install XcodeGen 2.46.0
+        run: |
+          set -euo pipefail
+          curl -fsSL -o "$RUNNER_TEMP/xcodegen.zip" \
+            https://github.com/yonaskolb/XcodeGen/releases/download/2.46.0/xcodegen.zip
+          unzip -q "$RUNNER_TEMP/xcodegen.zip" -d "$RUNNER_TEMP/xcodegen"
+          # install.sh copies bin/xcodegen and share/xcodegen/SettingPresets.
+          sudo "$RUNNER_TEMP/xcodegen/xcodegen/install.sh" /usr/local
+          xcodegen --version
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+      - name: Enable pnpm
+        run: corepack enable && corepack prepare pnpm@9.15.4 --activate
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@df2a88e9fe4098bad09cb42c3dec7187f15861fc # 2026-11-15
+        with:
+          toolchain: 1.96.0
+          targets: aarch64-apple-darwin,x86_64-pc-windows-gnu
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: player:mac:test
+        # PlayerKitTests links the release static core and talks to openrgb-stub.
+        # The suite does not prompt for Input Monitoring or audio permission.
+        run: pnpm player:mac:test
+
+  windows-native:
+    name: windows native
+    runs-on: windows-2022
+    timeout-minutes: 120
+    env:
+      CARGO_BUILD_JOBS: '2'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+      - name: Enable pnpm
+        shell: bash
+        run: corepack enable && corepack prepare pnpm@9.15.4 --activate
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@df2a88e9fe4098bad09cb42c3dec7187f15861fc # 2026-11-15
+        with:
+          toolchain: 1.96.0
+          targets: x86_64-pc-windows-msvc,x86_64-pc-windows-gnu,aarch64-apple-darwin
+      - name: Setup .NET
+        uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+        with:
+          global-json-file: apps/player-win/global.json
+      - name: Install
+        shell: bash
+        run: pnpm install --frozen-lockfile
+      - name: Prepare bundles and fixtures
+        shell: bash
+        run: bash tools/win/prepare-mac.sh
+      - name: Debug native build
+        # Release Rust uses lto = fat, which this repo already warns can exhaust
+        # a 16 GB machine. Debug still builds the MSVC DLL, runs cargo test,
+        # QuickJS parity, the stub C smoke, and the unsigned WinUI shell.
+        shell: pwsh
+        run: powershell -ExecutionPolicy Bypass -File tools\win\build.ps1 -Configuration Debug

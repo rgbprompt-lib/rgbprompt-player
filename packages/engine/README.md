@@ -95,15 +95,17 @@ fields with a declared range such as `meta.seed`, `layer.opacity`, and rain
   encoder and no `normalize`-from-DSL.
 
 `pnpm build` emits ESM and (for web/player) IIFE bundles. Client outputs are minified, have no
-source maps or comments, and the player output drops `console`. `tools/bundle-check` guards these
-properties in CI.
+source maps or comments, and the player output drops `console`. `pnpm player:iife` loads
+`dist/player/engine.iife.js` and checks every golden frame CRC against the committed vectors.
+That check uses only files in this repository.
 
 ## Tests
 
 ```bash
 corepack pnpm --filter @rgbprompt/engine test
-corepack pnpm check:bundles   # build + client-bundle checks + player vm test
-corepack pnpm golden:jsc      # macOS JavaScriptCore parity for the player bundle
+corepack pnpm --filter @rgbprompt/engine build
+corepack pnpm player:iife     # public player IIFE CRC parity (run the build first)
+corepack pnpm golden:jsc      # optional macOS JavaScriptCore spot check
 ```
 
 ## Golden guard

@@ -30,13 +30,18 @@ async function run() {
     sourcemap: false,
     metafile: true,
   });
-  const output = result.metafile.outputs[relative(root, outfile)];
+  // esbuild metafile keys always use '/'. path.relative uses '\\' on Windows.
+  const output = result.metafile.outputs[metafileKey(root, outfile)];
   if (!output) throw new Error('build: missing metafile output for player');
   const contents = readFileSync(outfile);
   console.log(
-    `safety build: ${relative(join(root, 'dist'), outfile).split('\\').join('/')} ` +
+    `safety build: ${metafileKey(join(root, 'dist'), outfile)} ` +
       `${contents.length} B (${gzipSync(contents).length} B gzip)`,
   );
+}
+
+function metafileKey(from, to) {
+  return relative(from, to).split('\\').join('/');
 }
 
 await run();

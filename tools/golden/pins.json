@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "description": "Raw SHA-256 of the public protocol and audio oracle files. Update a pin only in the same commit as an intentional behaviour change. No other repository checkout is required to recompute these hashes.",
+  "files": [
+    {
+      "id": "player-protocol-cases",
+      "alias": "player-protocol-cases.json",
+      "path": "apps/player-core/crates/core/tests/data/protocol-cases.json",
+      "sha256": "e7679100418c55c2f14aea3047feb1fda36eae074bc6b7971ff46b41aa6d22ea"
+    },
+    {
+      "id": "synthetic-48k-bands",
+      "alias": "synthetic-48k.bands",
+      "path": "apps/player-core/fixtures/ka/synthetic-48k.bands",
+      "sha256": "2ea5361e14683b40436bfb8d4de6e8afda2b5984a3a17d9504e4141ab739468d"
+    }
+  ]
+}

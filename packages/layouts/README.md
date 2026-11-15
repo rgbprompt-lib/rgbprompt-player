@@ -57,9 +57,8 @@ ISO / JIS layouts and per-device OpenRGB LED maps are out of scope for this pack
 
 ## i18n strings for region labels
 
-The eight `tuning.region.*` messages now live in `@rgbprompt/i18n`
-(`packages/i18n/src/locales/{en,zh-CN}.json`). `REGION_LABELS[].labelKey` still returns the key,
-never display text.
+`REGION_LABELS[].labelKey` returns a stable key, never display text. Locale
+catalogs are not part of this repository and are not required to build the Player.
 
 ## Tests
 

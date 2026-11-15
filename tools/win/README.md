@@ -1,8 +1,12 @@
-# tools/win — Windows VM Player build
+# tools/win — Windows Player build
 
-## One-time VM setup
+Public CI (`windows native` in `.github/workflows/ci.yml`) builds this repository
+on a GitHub-hosted `windows-2022` runner. It does not mount another checkout.
+A local Windows machine or VM uses the same scripts.
 
-1. Share the rgbprompt repo into the Windows VM (Parallels / UTM / VMware).
+## One-time setup
+
+1. Clone this repository. Do not copy source in from another project.
 2. Install:
    - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) (x64; on ARM64 Windows the x64 SDK runs under Prism)
    - [rustup](https://rustup.rs) then `rustup target add x86_64-pc-windows-msvc`
@@ -12,16 +16,16 @@
 
    On a 16 GB VM, prefer `powershell -ExecutionPolicy Bypass -File tools\win\build.ps1 -Configuration Debug`. The workspace Release profile uses `lto=fat` and can run out of memory. That profile is shared with the Mac Player and is not changed here.
 
-3. On the Mac (host), from the repo root:
+3. From this repository root, build the Node artifacts (Linux, macOS, or Windows):
 
 ```bash
 bash tools/win/prepare-mac.sh
 # or: corepack pnpm player:prepare:win
 ```
 
-## Build in the VM
+## Build
 
-Open PowerShell **in the shared repo root**:
+Open PowerShell **in this repository root**:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools\win\build.ps1
@@ -31,7 +35,7 @@ Paste the full output (especially the summary block) back for review.
 
 ### What the script does
 
-1. Checks rustc/msvc/dotnet and Mac-built engine/safety/fixtures
+1. Checks rustc/msvc/dotnet and the engine/safety bundles and fixtures in this repository
 2. `cargo test` + build `rgbprompt_player.dll` into `%LOCALAPPDATA%\rgbprompt-build\cargo`
 3. `parity golden` + `parity limiter`
 4. MSVC C ABI smoke against `openrgb-stub`
