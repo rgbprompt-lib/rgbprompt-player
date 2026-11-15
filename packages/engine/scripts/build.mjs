@@ -97,16 +97,21 @@ async function run() {
     mkdirSync(dirname(target.options.outfile), { recursive: true });
     const result = await build({ ...target.options, metafile: true });
     const outfile = target.options.outfile;
-    const output = result.metafile.outputs[relative(root, outfile)];
+    // esbuild metafile keys always use '/'. path.relative uses '\\' on Windows.
+    const output = result.metafile.outputs[metafileKey(root, outfile)];
     if (!output) throw new Error(`build: missing metafile output for ${target.name}`);
     const contents = readFileSync(outfile);
-    const key = relative(dist, outfile).split('\\').join('/');
+    const key = metafileKey(dist, outfile);
     sizes[key] = { raw: contents.length, gzip: gzipSync(contents).length };
   }
   writeFileSync(join(dist, 'sizes.json'), `${JSON.stringify(sizes, null, 2)}\n`);
   for (const [file, size] of Object.entries(sizes)) {
     console.log(`engine build: ${file} ${size.raw} B (${size.gzip} B gzip)`);
   }
+}
+
+function metafileKey(from, to) {
+  return relative(from, to).split('\\').join('/');
 }
 
 await run();
