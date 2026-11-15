@@ -55,27 +55,60 @@ effect running with that input layer static.
 
 ## Building
 
-Prerequisites: Node 22 with Corepack (pnpm 9.15.4), Rust (pinned by
-`apps/player-core/rust-toolchain.toml`), and per platform:
+Clone this repository and build it on its own. Player development does not check
+out another project, export source from one, or share a `node_modules` tree.
 
-- macOS 14.2+: a current Xcode (tested with Xcode 27.2) and [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`).
-- Windows: .NET 8 SDK and the Windows App SDK (see `apps/player-win/README.md`).
+Prerequisites: Node 22.18 (`.nvmrc`) with Corepack (pnpm 9.15.4), Rust 1.96.0
+(`apps/player-core/rust-toolchain.toml`), and per platform:
+
+- macOS 14.2+: Xcode 27.2 and [XcodeGen](https://github.com/yonaskolb/XcodeGen) 2.46.0.
+- Windows: .NET SDK 8.0.305 (`apps/player-win/global.json`) and Visual Studio 2022
+  with the Desktop development with C++ workload (see `apps/player-win/README.md`).
+- A Windows GNU cross-check also needs `x86_64-w64-mingw32-gcc` (package
+  `gcc-mingw-w64-x86-64` on Ubuntu).
 
 ```sh
 corepack enable
-pnpm install
-pnpm check                      # format, lint, typecheck, JS tests, golden corpus
+corepack prepare pnpm@9.15.4 --activate
+pnpm install --frozen-lockfile
+pnpm check                      # format, lint, typecheck, JS tests, golden corpus, oracle pins
 pnpm build:bundles              # engine.iife.js + safety.iife.js
-cd apps/player-core && cargo test
+pnpm player:iife                # player IIFE frame CRCs against the golden vectors
+pnpm player:parity              # IIFE CRCs, then QuickJS golden + limiter parity
+cd apps/player-core && cargo test --locked --workspace
 cd ../..
-pnpm player:mac:test            # Rust static core + PlayerKit XCTest suite
-pnpm player:mac:build           # RGBPrompt Player.app (ad-hoc signed)
-pnpm player:check:win           # cross-check the core for x86_64-pc-windows-gnu
+pnpm player:mac:test            # Rust static core + PlayerKit XCTest (openrgb-stub)
+pnpm player:mac:build           # RGBPrompt Player.app (ad-hoc signed, not notarized)
+pnpm player:check:win           # cross-build the core for x86_64-pc-windows-gnu
 ```
+
+`cargo test` leaves three opt-in tests ignored: `live_download_installs_a_real_archive`
+and the two `audio_effect_probe` timing probes. Do not pass `--ignored` in CI.
+
+Signing and notarization (`pnpm player:mac:release`) are optional local steps.
+They are not part of CI and need no secret to build or test. CI does not attach
+a keyboard or any other USB device.
+
+Public CI is [`.github/workflows/ci.yml`](.github/workflows/ci.yml). It requests
+only `contents: read`.
+
+| Job               | What it runs                                                                                             |
+| ----------------- | -------------------------------------------------------------------------------------------------------- |
+| `pnpm check`      | `pnpm check` on `ubuntu-24.04`                                                                           |
+| `player parity`   | `pnpm player:parity` (Node IIFE CRCs + QuickJS)                                                          |
+| `cargo test`      | `cargo test --locked --workspace` (three `#[ignore]` tests stay ignored)                                 |
+| `windows gnu`     | `pnpm player:check:win` with mingw-w64                                                                   |
+| `macOS PlayerKit` | `pnpm player:mac:test` on the `xcode-27` runner, Xcode 27.2, stub only                                   |
+| `windows native`  | unsigned Debug MSVC DLL, cargo test, parity, stub C smoke, WinUI build, and Core tests on `windows-2022` |
+
+The hosted Windows job uses Debug because the workspace Release profile
+(`lto = "fat"`, `codegen-units = 1`) can exhaust a 16 GB runner. That job still
+compiles the WinUI shell and the native DLL. It does not sign or install the app.
 
 More detail: [`apps/player-core/README.md`](apps/player-core/README.md),
 [`apps/player-mac/README.md`](apps/player-mac/README.md),
-[`apps/player-win/README.md`](apps/player-win/README.md).
+[`apps/player-win/README.md`](apps/player-win/README.md),
+[`tools/golden/README.md`](tools/golden/README.md).
 
 ## OpenRGB
 
@@ -101,5 +134,5 @@ Security issues: see [SECURITY.md](SECURITY.md). Contributions: see [CONTRIBUTIN
 RGBPrompt Player 是在本机播放 RGBPrompt 键盘灯效的小程序（macOS 菜单栏 / Windows 托盘）。
 它从 rgbprompt.com 或本地 `.lep` 文件取得灯效，逐帧渲染、经安全限幅后，通过本机 OpenRGB 写到键盘。
 因为它需要「输入监控」和「系统音频」等敏感权限，所以源码公开，任何人都可以审查并自行编译。
-网站、AI 生成、账户与支付不在本仓库。隐私说明见 [PRIVACY.md](PRIVACY.md)；
-许可证为 Apache-2.0（引擎为 MIT），OpenRGB 为 GPL-2.0 的独立程序。
+网站、AI 生成、账户与支付不在本仓库。构建与 CI 只使用本仓库，不检出其它项目。
+隐私说明见 [PRIVACY.md](PRIVACY.md)；许可证为 Apache-2.0（引擎为 MIT），OpenRGB 为 GPL-2.0 的独立程序。

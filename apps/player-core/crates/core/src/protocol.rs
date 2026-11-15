@@ -1,7 +1,7 @@
-//! `rgbprompt://` URL parsing, line-by-line equivalent to
-//! `parsePlayerUrl` in `@rgbprompt/contracts` (PLAYER §3.1). The shared case
-//! table lives in `tests/data/protocol-cases.json` and is read by both this
-//! crate and `packages/contracts`.
+//! `rgbprompt://` URL parsing (PLAYER §3.1). The case table lives in
+//! `tests/data/protocol-cases.json`. Those bytes are the public protocol
+//! oracle; `tools/golden/pins.json` records their sha256. Parser changes have
+//! to keep every case in that file exact.
 use std::collections::HashMap;
 
 pub const PLAYER_URL_SCHEME: &str = "rgbprompt://";

@@ -78,7 +78,9 @@ corepack pnpm golden:cadence        # write CADENCE.md
 corepack pnpm golden:cadence:strict # write CADENCE.md and fail if a non-exempt case differs
 corepack pnpm golden:coverage       # line/branch coverage of render/color/surfaces/timing
 corepack pnpm golden:bench          # ms/frame for the heaviest case and an 8-layer worst case
-corepack pnpm golden:jsc            # macOS acceptance: player IIFE parity in JavaScriptCore
+corepack pnpm golden:jsc            # optional macOS spot check: seven cases in JavaScriptCore
+corepack pnpm player:iife            # every case through the player IIFE, per-frame CRC32
+corepack pnpm pins:check             # sha256 of the public protocol and audio oracle files
 ```
 
 `golden:coverage` is intentionally **not** part of `check`: it runs Node's
@@ -127,10 +129,52 @@ press is first seen (upstream lepc and both firmware engines (C and C++) all do 
 20 vs 40 ms the start can land one frame apart. Making it start at the key
 event time would need the same change in every engine (see ENGINE.md §5.2, known limitation: 26/250 and 6/250 frames differ at 20 vs 40 ms).
 
-## JavaScriptCore parity (macOS acceptance)
+## Public pins
 
-`corepack pnpm golden:jsc` is a macOS acceptance step, not part of `pnpm check` (CI is Linux). It
-builds nothing itself: run `pnpm --filter @rgbprompt/engine build` first. The script:
+`tools/golden/pins.json` records the raw SHA-256 of two source files:
+
+| id                      | path in this repository                                       | also known as                |
+| ----------------------- | ------------------------------------------------------------- | ---------------------------- |
+| `player-protocol-cases` | `apps/player-core/crates/core/tests/data/protocol-cases.json` | `player-protocol-cases.json` |
+| `synthetic-48k-bands`   | `apps/player-core/fixtures/ka/synthetic-48k.bands`            | `synthetic-48k.bands`        |
+
+`pnpm pins:check` (included in `pnpm check`) reads those bytes and exits 1 on a mismatch.
+Recomputing the hash needs only this repository:
+
+```bash
+sha256sum apps/player-core/crates/core/tests/data/protocol-cases.json
+sha256sum apps/player-core/fixtures/ka/synthetic-48k.bands
+```
+
+The protocol file is the `rgbprompt://` case table. The bands file is the 48 kHz analyser
+oracle (`ka_bands_match_the_shared_fixture`). A website or another checkout can pin the same
+hashes. This repository does not clone, export, or diff another tree to do that.
+
+Change a pin only when the behaviour change is intentional, in the same commit as the file,
+and say so in the pull request. The duplicate TypeScript engine that may exist outside this
+repository is a separate runtime copy. Frame drift of the copy in this repository shows up as
+a golden mismatch or a `player:iife` / `player:parity` CRC mismatch. There is no credential
+and no second checkout involved.
+
+## Player IIFE parity
+
+`corepack pnpm player:iife` builds nothing itself. Run `pnpm --filter @rgbprompt/engine build`
+first (`pnpm player:parity` does both). The script:
+
+1. loads `packages/engine/dist/player/engine.iife.js` in a Node `vm`;
+2. requires `decode`, `simulate`, `crc32`, and `frameToBytes`, and rejects a source map URL;
+3. encodes every golden case with the TypeScript engine and checks that render against the
+   stored sha256 and CRC32 chain;
+4. decodes the same `.lep` bytes inside the IIFE, renders every frame, and compares CRC32
+   with the stored vector.
+
+It reads no file outside this repository. `pnpm player:parity` then runs the same frames through
+the IIFE embedded in QuickJS (`parity golden`) and the safety IIFE (`parity limiter`).
+
+## JavaScriptCore parity (optional macOS spot check)
+
+`corepack pnpm golden:jsc` is not part of `pnpm check` or Linux CI. It builds nothing itself:
+run `pnpm --filter @rgbprompt/engine build` first. The script:
 
 1. finds a JSC host (`jsc` on `PATH`, the JavaScriptCore framework helper, or `osascript
 -l JavaScript`); when none exists it prints `skipped: no JavaScriptCore` and exits 0;
@@ -144,7 +188,8 @@ builds nothing itself: run `pnpm --filter @rgbprompt/engine build` first. The sc
 The player IIFE needs only standard ECMAScript intrinsics (`Uint8Array`, `DataView`, `Math`,
 `JSON`); it does not use `console`, `TextEncoder` or `TextDecoder`.
 
-QuickJS on Windows is future work for the Windows Player task; no harness exists yet.
+QuickJS parity is `pnpm player:parity` (`parity golden` and `parity limiter`). Linux CI runs it.
+The Windows script `tools/win/build.ps1` runs the same commands.
 
 ## Coverage
 

@@ -16,7 +16,8 @@ manifests `manifests/openrgb-{macos,windows}.json` (Windows: the patched release
 `archive: "bundle"` so the Player launches `Contents/Helpers/OpenRGB.app` and
 never downloads a Mac driver) and
 `vendor-conflicts.json` (PLAYER §8 display names and process patterns).
-`crates/core/tests/data/protocol-cases.json` is the URL table shared with `packages/contracts`.
+`crates/core/tests/data/protocol-cases.json` is the public `rgbprompt://` case table.
+Its raw sha256 is pinned in `tools/golden/pins.json` (`pnpm pins:check`).
 
 The toolchain is pinned in `rust-toolchain.toml` (Rust 1.96.0). Run cargo commands from this
 directory so both the toolchain override and `.cargo/config.toml` (mingw linker) apply.
@@ -27,7 +28,8 @@ Run from the repository root:
 
 ```bash
 corepack pnpm player:fixtures          # write apps/player-core/fixtures/golden from the golden corpus
-corepack pnpm player:parity            # build engine + safety, fixtures, then `parity golden` and `parity limiter`
+corepack pnpm player:iife              # player IIFE CRC32 against every golden vector
+corepack pnpm player:parity            # bundles, IIFE CRCs, fixtures, then `parity golden` and `parity limiter`
 corepack pnpm player:check:win         # cross-compile the workspace for x86_64-pc-windows-gnu
 corepack pnpm player:header            # regenerate include/rgbprompt_player.h (RGBP_BLESS=1)
 corepack pnpm player:smoke             # C ABI smoke test against the OpenRGB stub (macOS clang)
@@ -41,7 +43,7 @@ Run from this directory:
 ```bash
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets -- -D warnings
-cargo test --workspace
+cargo test --locked --workspace
 cargo run --release -p parity -- golden [--fixtures <dir>] [--case <id>]
 cargo run --release -p parity -- limiter [--vectors <dir>]
 cargo run -p parity -- diagnostics-sample

@@ -12,5 +12,5 @@ cover `EngineHost::input_wanted`: `music-spectrum` wants audio, `party` wants
 both audio and keys.
 
 The tests only decode these through the embedded engine; they do not read the
-gitignored fixtures directory. `protocol-cases.json` is the URL table shared
-with `packages/contracts`.
+gitignored fixtures directory. `protocol-cases.json` is the public URL oracle.
+`pnpm pins:check` compares its raw sha256 with `tools/golden/pins.json`.

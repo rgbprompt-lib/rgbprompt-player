@@ -2,11 +2,20 @@
 // Validate the Rust diagnostics sample with the real contracts schema
 // (PLAYER §10). Exit 1 when the sample does not parse.
 import { execFileSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = new URL('../../', import.meta.url);
 const PLAYER_CORE = fileURLToPath(new URL('apps/player-core/', ROOT));
-const { PlayerDiagnosticsSchema } = await import(new URL('packages/contracts/src/player.ts', ROOT));
+const CONTRACTS = new URL('packages/contracts/src/player.ts', ROOT);
+if (!existsSync(CONTRACTS)) {
+  console.error(
+    'player:diagnostics:check: packages/contracts is not in this repository. ' +
+      'Public CI does not run this command. Protocol cases are pinned in tools/golden/pins.json.',
+  );
+  process.exit(1);
+}
+const { PlayerDiagnosticsSchema } = await import(CONTRACTS);
 
 let stdout;
 try {

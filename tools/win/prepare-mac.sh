@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# Prepare Mac-side Node artifacts that the Windows VM build needs.
-# Run from the repository root on macOS before tools/win/build.ps1 in the VM.
-# Never run pnpm install inside the Windows VM (shared node_modules is macOS).
+# Build the Node artifacts a Windows Player build consumes.
+# Run from this repository's root. It does not read any other checkout.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -34,5 +33,6 @@ fi
 echo "  ok fixtures at apps/player-core/fixtures/golden/"
 
 echo
-echo "Mac side ready. In the Windows VM, from the shared repo root, run:"
+echo "Bundles and fixtures are ready in this repository."
+echo "On Windows, from this repository root, run:"
 echo "  powershell -ExecutionPolicy Bypass -File tools\\win\\build.ps1"

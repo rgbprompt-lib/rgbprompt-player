@@ -4,7 +4,7 @@
 | --- | --- |
 | 覆盖需求 | PLY-01~21、PLW-01~09、HW-01~06、§8「Player 未响应 / 播放失败」、FBK-05（首次播放微问卷） |
 | 实现 | `apps/player-core`（Rust 共用内核：QuickJS 引擎宿主、限幅、映射、OpenRGB、令牌、状态机、播放循环）+ `apps/player-mac`（Swift / SwiftUI 外壳）+ `apps/player-win`（WinUI 3 / C# 外壳）；见 ADR-0014 |
-| 共享 | `packages/engine` player IIFE bundle、`packages/safety` player IIFE（实时限幅器）与向量、`packages/contracts`（协议、令牌、诊断格式）、面板文案 `packages/i18n` |
+| 共享 | 本仓库内的 `packages/engine` player IIFE、`packages/safety` player IIFE 与向量、`packages/layouts`。协议用例是 `apps/player-core/crates/core/tests/data/protocol-cases.json`（sha256 见 `tools/golden/pins.json`）。`packages/contracts` 与 `packages/i18n` 不在本仓库，构建不依赖它们。 |
 | 状态 | 草案 v0.2（2026-11-07：改为共用 Rust 内核 + 原生外壳，ADR-0014） |
 
 ## 1. 职责边界
@@ -344,23 +344,23 @@ Cargo workspace，`rust-toolchain.toml` 固定版本；不进 pnpm workspace，�
 | --- | --- |
 | 结构 | C# / WinUI 3（Windows App SDK），.NET 8；`WindowsPackageType=None`（unpackaged）+ `WindowsAppSDKSelfContained=true` + `SelfContained=true`；`RGBPrompt.Player.Interop` 用 `LibraryImport` 声明 C ABI，`rgbprompt_player.dll` 与 exe 同目录。**不用 WebView** |
 | C# 只做 | 托盘图标与菜单（Shell_NotifyIcon 或 H.NotifyIcon.WinUI）、340 宽无边框面板窗口（贴近托盘弹出、失焦隐藏）、设置窗口（400×560）、WASAPI loopback（NAudio 或 CsWin32 直调，默认渲染设备切换时重建 → `rgbp_push_audio_pcm`）、`SetWindowsHookEx(WH_KEYBOARD_LL)`（回调只做 VK → ansi104 键名并入队）、`RegisterDeviceNotification` 插拔通知 |
-| 面板 | XAML 实现 §6 全部状态，文案用与 Mac 同源的 `packages/i18n` 键（构建时生成 `.resw`）；深浅色与高 DPI 跟随系统；托盘图标按任务栏主题切换 |
+| 面板 | XAML 实现 §6 全部状态，文案在本仓库的 WinUI 资源里；深浅色与高 DPI 跟随系统；托盘图标按任务栏主题切换 |
 | 安装 | 用户级（`%LOCALAPPDATA%\Programs\RGBPrompt`），无需管理员；安装与更新默认用 Velopack（unpackaged 应用的安装 / 增量更新 / 签名校验），M6-W5 定稿；约 30–50 MB（self-contained 运行时 + Windows App SDK + 内核）；内置 OpenRGB 后安装包再增加约 22 MB，布局为 exe 旁的 `OpenRGB-RGBPrompt/OpenRGB.exe` |
 | 协议/启动项 | `HKCU\Software\Classes\rgbprompt`、`.lep` 文件关联（`HKCU\Software\Classes\.lep`）、`HKCU\Software\Microsoft\Windows\CurrentVersion\Run`；单实例：第二个进程把参数转交已运行实例后退出 |
 | 签名 | EV 代码签名（安装包、exe、内核 `.dll`；Q28，发布时才需要）；每个版本提交 Microsoft Defender 白名单，发布前多引擎扫描（PLW-08） |
 | 更新 | 后台检查签名清单 → 下载 → 校验签名与哈希 → 下次启动替换（静默） |
 | 最低系统 | Windows 10 22H2 x64 / Windows 11 |
-| 构建环境 | WinUI 3 只能在 Windows 上编译与运行。开发期在用户本机 Mac 上的 Windows 虚拟机中构建（Q29），见下方「VM 构建」 |
+| 构建环境 | WinUI 3 只能在 Windows 上编译与运行。公开 CI 在 GitHub 托管的 `windows-2022` 上以 Debug 编译本仓库（不签名）。本地 Windows 或虚拟机用同一套 `tools/win` 脚本，见下方。 |
 
-#### VM 构建（tools/win/build.ps1）
+#### Windows 构建（tools/win/build.ps1）
 
-开发期 Windows 构建在用户本机 Mac 上的 Windows 虚拟机中进行，仓库以共享文件夹挂进 VM（Q29）。用户在 VM 的 PowerShell 中、于共享仓库根目录运行一条命令：`powershell -ExecutionPolicy Bypass -File tools\win\build.ps1`。
+公开 CI 与本地 Windows 都只构建本仓库。先在本仓库根目录运行 `bash tools/win/prepare-mac.sh`（或 `pnpm player:prepare:win`）生成 IIFE 与 fixtures，再在 Windows 上运行 `powershell -ExecutionPolicy Bypass -File tools\win\build.ps1`。托管运行器使用 `-Configuration Debug`，因为 Release 的 `lto = fat` 可能在 16 GB 内存上失败。CI 不签名、不安装、不接 USB。
 
 | 项 | 规则 |
 | --- | --- |
 | 前置（脚本头部注明并逐项检查） | rustup + `x86_64-pc-windows-msvc` 工具链；Visual Studio 2022 Build Tools 的「使用 C++ 的桌面开发」工作负载（QuickJS 经 `cc` 编译需要 MSVC）；.NET 8 SDK；Windows App SDK 通过 NuGet restore 获取（不单独安装）。缺失项打印安装指引并退出 |
-| Node 侧产物 | **VM 内绝不运行 `pnpm install` 或 pnpm 构建**：共享的 `node_modules` 属于 macOS。`engine.iife.js`、safety player IIFE 与 `player:fixtures` 都在 Mac 上生成；缺失时脚本失败并提示要在 Mac 上运行的命令 |
-| 输出目录 | `CARGO_TARGET_DIR` 与 dotnet `obj` / `bin`（`--artifacts-path` 或 `BaseIntermediateOutputPath` / `OutputPath`）指向 VM 本地 `%LOCALAPPDATA%\rgbprompt-build`，不写共享目录（避免共享文件夹 IO 慢与文件锁，也不让 Windows 产物进入 Mac 工作树） |
+| Node 侧产物 | `build.ps1` 不运行 `pnpm install`。`engine.iife.js`、safety player IIFE 与 fixtures 必须已经在本仓库生成（`tools/win/prepare-mac.sh`）。公开 CI 在同一克隆里先生成再编译。 |
+| 输出目录 | `CARGO_TARGET_DIR` 与 dotnet `obj` / `bin`（`--artifacts-path`）指向 `%LOCALAPPDATA%\rgbprompt-build`，不写仓库目录 |
 | 步骤 | 前置检查 → bundle / fixtures 检查 → `cargo test` → 构建 `rgbprompt_player.dll` → `parity golden` / `parity limiter` → MSVC C 冒烟测试 →（`apps/player-win` 存在时）`dotnet restore` + `dotnet build` / 单测 |
 | 输出 | 末尾打印 `.dll`、exe 的绝对路径与 parity 汇总（通过 / 失败用例数）；任一步失败则非零退出并打印失败步骤，便于用户把输出贴回给评审 |
 | 真机 | VM 中测试 USB 键盘需在虚拟化软件中把键盘 USB 直通给 VM（直通期间 Mac 侧无法控制该键盘灯光） |
@@ -368,19 +368,19 @@ Cargo workspace，`rust-toolchain.toml` 固定版本；不进 pnpm workspace，�
 ## 10. 隐私与日志
 
 - 本地日志：`<data_dir>/logs/player.log`，每个事件一行：`unix_ms state=<name> code=<code> fps=<n> device=<controller name> support=<s>`；驱动事件如 `driver_install_start`、`driver_install_ok`、`driver_launch port=<p>`、`driver_crashed`。达到 5 MiB 滚动一次到 `player.log.1`（只保留一代）。**绝不**包含键名、音频、令牌、带令牌的 URL、提示词或邮箱。
-- 诊断信息（复制或随反馈提交，用户逐项确认）：Player 版本、系统版本、OpenRGB 版本与端口、设备列表与支持等级、最近 20 条错误、协议注册状态。线上格式为 `packages/contracts` 的 `PlayerDiagnosticsSchema`（`schema: 1`，`.strict()`：拒绝键名、音频、提示词等未知字段）。
+- 诊断信息（复制或随反馈提交，用户逐项确认）：Player 版本、系统版本、OpenRGB 版本与端口、设备列表与支持等级、最近 20 条错误、协议注册状态。诊断 JSON 由内核测试覆盖。`pnpm player:diagnostics:check` 依赖不在本仓库的 `packages/contracts`，公开 CI 不运行它。
 
 ## 11. 测试
 
 | 测试 | 内容 |
 | --- | --- |
-| 金样对拍 | 内核 `parity golden`：Node 侧脚本（`pnpm player:fixtures`）用完整引擎把 `tools/golden` 全部用例编码为 `.lep` + 输入脚本 + 期望 CRC32 / sha256 链（编码只在服务端，ADR-0013），写入 `apps/player-core/fixtures/golden/`（gitignored）；`parity` 在 QuickJS 中用嵌入的 player IIFE 解码并逐帧渲染，报告第一处不一致帧。只在 Rust 里实现一次，在本机 Mac 与用户的 Windows VM（`tools/win/build.ps1`）上各跑一次（本机 Mac 即可完整验收） |
+| 金样对拍 | `pnpm player:iife` 在 Node vm 里用公开的 `engine.iife.js` 对全部金样逐帧比对 CRC32。`pnpm player:fixtures` 再用完整引擎把用例编码为 `.lep` + 输入 + 期望 CRC32 / sha256，写入 gitignore 的 `apps/player-core/fixtures/golden/`。`parity golden` 在 QuickJS 中用嵌入的 player IIFE 解码并逐帧渲染。Linux CI 跑这两步；Windows 的 `tools/win/build.ps1` 跑 QuickJS 对拍。 |
 | 限幅向量 | 内核 `parity limiter`：`@rgbprompt/safety/vectors` 全部向量经嵌入的 safety IIFE 限幅后 `output_sha256` 一致 |
 | 内核单测 | `cargo test`：PlayerService 状态迁移（全部 §6 状态与 `ack` 结果码）、LayoutMapper 降级、OutputStage Gamma 表、TokenClient（本地 HTTP 桩）、DriverManager 校验失败路径、播放循环节拍与自适应降帧（假时钟） |
 | OpenRGB 模拟 | `openrgb-stub`（SDK server 桩，记录 UpdateLEDs）驱动内核端到端：映射、降级、停止时一帧全黑且不改模式、断线重连 |
 | 驱动管理 | `driver_e2e`（loopback HTTP 文件桩）：清单解析、`sha256: null` 失败关闭、非 https/loopback URL 拒绝、安装 happy path（进度 → 解压 → 启动 → Playing，`installed.json` 最后写）、official 校验失败走 mirror、两个都坏 / 404 的错误码、下载中取消、zip slip、端口回退、外部 server 优先、崩溃重启与 4 次崩溃放弃、managed/external 的 `restart_backend`。`pnpm player:driver:e2e` 跑安装 happy path。 |
 | 设备保护 / 恢复 | `service_recovery`：跨设备选择最佳支持（mouse / zones / per-key）、只有鼠标 → `NoKeyboard`、device lost 保持灯光并恢复、BackendUnresponsive 重连、stop 后不再重扫、通知去抖、Idle/Playing 无 watcher tick、厂商冲突与 retry、日志不含键名/令牌 |
 | 真机探针 | `parity openrgb-probe` 对手册外的真实 OpenRGB 只读采样（协议、控制器、模式、分区、LED、布局）；`--play` 写入后以一帧全黑结束。测试对 stub 跑两种模式。`pnpm player:probe:openrgb` |
-| C ABI | 头文件由 cbindgen 生成并入库，CI 检查无漂移（`cargo test` / `pnpm player:header`）；C 冒烟测试（Mac clang / Windows MSVC，`pnpm player:smoke`）走一遍 create → open_lep → preview → stop → destroy；内核单测覆盖 URL 表、TokenClient 本地 HTTP 桩、PlayerService 全部状态与 ack、播放节拍 / 自适应降帧、packet 100、诊断 JSON（`pnpm player:diagnostics:check`）；外壳侧 Swift XCTest / C# 单测只测桥接与 UI 状态映射 |
+| C ABI | 头文件由 cbindgen 生成并入库，`cargo test` 检查无漂移（`pnpm player:header` 重新生成）。C 冒烟测试走 create → open_lep → preview → stop → destroy：macOS 用 `pnpm player:smoke`，Windows CI 在 `build.ps1` 里对 `openrgb-stub` 用 MSVC 编译。内核单测覆盖 URL 表、TokenClient 本地 HTTP 桩、PlayerService 状态与 ack、播放节拍 / 自适应降帧、packet 100、诊断 JSON。外壳侧 Swift XCTest / C# 单测只测桥接与 UI 状态映射，不申请系统权限。 |
 | 真机矩阵 | ≥ 30 款键盘 × 两平台的手测清单（HW-01），记录到设备矩阵 |
 | 崩溃率 | 播放会话崩溃率 ≤ 1%（Beta 门槛），崩溃日志随诊断提交 |
