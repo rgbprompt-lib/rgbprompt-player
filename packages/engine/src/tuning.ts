@@ -209,7 +209,8 @@ function colorControl(layer: LayerDsl): TuningColorControl | TuningModeColor | n
         ...(typeof palette === 'string' ? { palette } : {}),
         ...(color.type === 'hue_cycle'
           ? {
-              period_ms: typeof period === 'number' && Number.isFinite(period) ? period : HUE_CYCLE_PERIOD.default,
+              period_ms:
+                typeof period === 'number' && Number.isFinite(period) ? period : HUE_CYCLE_PERIOD.default,
               min: HUE_CYCLE_PERIOD.min,
               max: HUE_CYCLE_PERIOD.max,
             }
@@ -378,7 +379,9 @@ function applyColor(layer: LayerDsl, color: TuningColor): ValidationIssue[] {
   if (color.kind === 'hue_cycle') {
     const existing = layer.color as ColorSpec | null | undefined;
     if (!existing || existing.type !== 'hue_cycle') {
-      return [issue('layer.color', 'COLOR_INVALID', 'hue cycle period can only be edited on a hue_cycle colour')];
+      return [
+        issue('layer.color', 'COLOR_INVALID', 'hue cycle period can only be edited on a hue_cycle colour'),
+      ];
     }
     if (typeof color.period_ms !== 'number' || !Number.isFinite(color.period_ms)) {
       return [issue('layer.color.period_ms', 'PARAM_TYPE', 'must be a finite number')];
@@ -391,26 +394,14 @@ function applyColor(layer: LayerDsl, color: TuningColor): ValidationIssue[] {
   }
   if (color.kind === 'single') {
     if (!colorTypeAllowed(layer.component, 'solid')) {
-      return [
-        issue(
-          'layer.color',
-          'COLOR_UNSUPPORTED',
-          `${layer.component} does not accept a solid swatch`,
-        ),
-      ];
+      return [issue('layer.color', 'COLOR_UNSUPPORTED', `${layer.component} does not accept a solid swatch`)];
     }
     layer.color = { type: 'solid', rgb: cloneRgb(color.rgb) };
     return [];
   }
   if (color.kind === 'stops') {
     if (!colorTypeAllowed(layer.component, 'ramp')) {
-      return [
-        issue(
-          'layer.color',
-          'COLOR_UNSUPPORTED',
-          `${layer.component} does not accept a colour ramp`,
-        ),
-      ];
+      return [issue('layer.color', 'COLOR_UNSUPPORTED', `${layer.component} does not accept a colour ramp`)];
     }
     if (!Array.isArray(color.colors) || color.colors.length < 2 || color.colors.length > 32) {
       return [issue('layer.color.colors', 'COLOR_INVALID', 'must contain 2..32 RGB stops')];
@@ -441,10 +432,22 @@ function applyColor(layer: LayerDsl, color: TuningColor): ValidationIssue[] {
   }
   const existing = layer.color as ColorSpec | null | undefined;
   if (existing && existing.type === 'ramp' && Array.isArray(existing.colors) && existing.colors.length > 0) {
-    return [issue('layer.color', 'COLOR_INVALID', 'a custom ramp cannot be replaced by a named palette from this control')];
+    return [
+      issue(
+        'layer.color',
+        'COLOR_INVALID',
+        'a custom ramp cannot be replaced by a named palette from this control',
+      ),
+    ];
   }
   if (existing && (existing.type === 'hue_cycle' || existing.type === 'from_input')) {
-    return [issue('layer.color', 'COLOR_INVALID', `${existing.type} colour cannot be switched to a named palette from this control`)];
+    return [
+      issue(
+        'layer.color',
+        'COLOR_INVALID',
+        `${existing.type} colour cannot be switched to a named palette from this control`,
+      ),
+    ];
   }
   if (existing && (existing.type === 'random' || existing.type === 'palette_index')) {
     layer.color = { ...existing, palette: color.palette } as ColorSpec;
@@ -509,15 +512,26 @@ function applyDirection(layer: LayerDsl, value: string): ValidationIssue[] {
   return [];
 }
 
-
 function applyParam(layer: LayerDsl, param: string, value: number | string | boolean): ValidationIssue[] {
   const allowed = EDITOR_LAYER_PARAMS[layer.component];
   if (!allowed || !allowed.includes(param)) {
-    return [issue(`layer.params.${param}`, 'PARAM_UNKNOWN', `${layer.component} does not expose ${param} for editing`)];
+    return [
+      issue(
+        `layer.params.${param}`,
+        'PARAM_UNKNOWN',
+        `${layer.component} does not expose ${param} for editing`,
+      ),
+    ];
   }
   const product = getPrimitiveProduct(layer.component);
   if (product?.speed.params.includes(param) || product?.direction === param) {
-    return [issue(`layer.params.${param}`, 'PARAM_CONFLICT', `${param} is edited through the speed or direction control`)];
+    return [
+      issue(
+        `layer.params.${param}`,
+        'PARAM_CONFLICT',
+        `${param} is edited through the speed or direction control`,
+      ),
+    ];
   }
   const spec = getComponent(layer.component)?.params[param];
   if (!spec) {

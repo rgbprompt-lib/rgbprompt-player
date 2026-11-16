@@ -322,16 +322,14 @@ test('applyTuning rejects invalid patches and results', () => {
   assert.equal(missingColor.issues[0].code, 'COLOR_INVALID');
 });
 
-
 test('tuningSchema reports honest colour modes and omits a fake fire swatch', () => {
   const hue = tuningSchema(
     effect({ component: 'rainbow_wave', color: { type: 'hue_cycle', period_ms: 4000 } }),
   )[0].controls[0];
   assert.deepEqual(hue, { kind: 'mode', mode: 'hue_cycle', period_ms: 4000, min: 1, max: 65535 });
 
-  const fromInput = tuningSchema(
-    effect({ component: 'reactive', color: { type: 'from_input' } }),
-  )[0].controls[0];
+  const fromInput = tuningSchema(effect({ component: 'reactive', color: { type: 'from_input' } }))[0]
+    .controls[0];
   assert.deepEqual(fromInput, { kind: 'mode', mode: 'from_input' });
 
   const fireDefault = tuningSchema(
@@ -375,7 +373,9 @@ test('applyTuning param patches write curated fields and reject others', () => {
     value: 800,
   });
   assert.equal(rejected.ok, false);
-  assert.ok(rejected.issues.some((entry) => entry.code === 'PARAM_UNKNOWN' || entry.code === 'PARAM_CONFLICT'));
+  assert.ok(
+    rejected.issues.some((entry) => entry.code === 'PARAM_UNKNOWN' || entry.code === 'PARAM_CONFLICT'),
+  );
 
   const unknown = applyTuning(effect({ component: 'static' }), {
     layerId: 'a',
