@@ -30,6 +30,7 @@
 AppId={{7C3E9A54-2F81-4B6D-9C20-8E4A1B7D6F30}
 AppName={#AppName}
 AppVersion={#AppVersion}
+VersionInfoVersion=0.7.1.12
 AppVerName={#AppName} {#AppVersion}
 AppPublisher={#AppPublisher}
 AppPublisherURL=https://rgbprompt.com/
