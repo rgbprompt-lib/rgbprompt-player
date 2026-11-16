@@ -40,29 +40,29 @@ function layerFor(component) {
 const EXPECTED_KINDS = {
   static: ['single', 'area'],
   gradient: ['single', 'area', 'direction'],
-  breath: ['single', 'speed', 'area'],
-  blink: ['single', 'speed', 'area'],
-  rainbow_wave: ['single', 'speed', 'area', 'direction'],
-  wave: ['single', 'speed', 'area', 'direction'],
-  scroll: ['single', 'speed', 'area', 'direction'],
-  sparkle: ['single', 'speed', 'area'],
-  drift: ['single', 'speed', 'area', 'direction'],
-  ring: ['single', 'speed', 'area', 'direction'],
-  key_ring: ['single', 'speed', 'area', 'direction'],
-  mote: ['single', 'speed', 'area', 'direction'],
+  breath: ['single', 'speed', 'area', 'param'],
+  blink: ['single', 'speed', 'area', 'param'],
+  rainbow_wave: ['single', 'speed', 'area', 'direction', 'param', 'param'],
+  wave: ['single', 'speed', 'area', 'direction', 'param', 'param'],
+  scroll: ['single', 'speed', 'area', 'direction', 'param', 'param'],
+  sparkle: ['single', 'speed', 'area', 'param'],
+  drift: ['single', 'speed', 'area', 'direction', 'param', 'param', 'param'],
+  ring: ['single', 'speed', 'area', 'direction', 'param', 'param'],
+  key_ring: ['single', 'speed', 'area', 'direction', 'param', 'param', 'param', 'param'],
+  mote: ['single', 'speed', 'area', 'direction', 'param', 'param', 'param'],
   reactive: ['single', 'speed', 'area'],
-  ripple: ['single', 'speed', 'area', 'direction'],
-  ripple_square: ['single', 'speed', 'area'],
+  ripple: ['single', 'speed', 'area', 'direction', 'param'],
+  ripple_square: ['single', 'speed', 'area', 'param'],
   aurora: ['single', 'speed', 'area'],
-  spectrum: ['single', 'speed', 'area'],
-  spectrum_mirror: ['single', 'area'],
-  spectrum_sum: ['single', 'area'],
+  spectrum: ['single', 'speed', 'area', 'param', 'param'],
+  spectrum_mirror: ['single', 'area', 'param', 'param', 'param'],
+  spectrum_sum: ['single', 'area', 'param', 'param', 'param'],
   key_tint: ['single', 'area'],
-  spiral: ['single', 'speed', 'area', 'direction'],
+  spiral: ['single', 'speed', 'area', 'direction', 'param', 'param', 'param'],
   block_stack: ['single', 'speed', 'area'],
-  key_burst: ['single', 'speed', 'area'],
-  rain: ['stops', 'speed', 'area'],
-  fire: ['stops', 'speed', 'area', 'direction'],
+  key_burst: ['single', 'speed', 'area', 'param', 'param', 'param'],
+  rain: ['stops', 'speed', 'area', 'param', 'param'],
+  fire: ['stops', 'speed', 'area', 'direction', 'param', 'param', 'param'],
 };
 
 test('tuningSchema covers every v1-open primitive with stable control kinds', () => {
@@ -320,4 +320,115 @@ test('applyTuning rejects invalid patches and results', () => {
   const missingColor = applyTuning(effect({}), { layerId: 'a', kind: 'color', color: undefined });
   assert.equal(missingColor.ok, false);
   assert.equal(missingColor.issues[0].code, 'COLOR_INVALID');
+});
+
+
+test('tuningSchema reports honest colour modes and omits a fake fire swatch', () => {
+  const hue = tuningSchema(
+    effect({ component: 'rainbow_wave', color: { type: 'hue_cycle', period_ms: 4000 } }),
+  )[0].controls[0];
+  assert.deepEqual(hue, { kind: 'mode', mode: 'hue_cycle', period_ms: 4000, min: 1, max: 65535 });
+
+  const fromInput = tuningSchema(
+    effect({ component: 'reactive', color: { type: 'from_input' } }),
+  )[0].controls[0];
+  assert.deepEqual(fromInput, { kind: 'mode', mode: 'from_input' });
+
+  const fireDefault = tuningSchema(
+    effect({ component: 'fire', color: undefined, params: { cooling: 55 } }),
+  )[0].controls[0];
+  assert.deepEqual(fireDefault, { kind: 'mode', mode: 'default' });
+});
+
+test('applyTuning param patches write curated fields and reject others', () => {
+  const breath = applyTuning(effect({ component: 'breath' }), {
+    layerId: 'a',
+    kind: 'param',
+    param: 'min_level',
+    value: 40,
+  });
+  assert.equal(breath.ok, true);
+  assert.equal(breath.effect.layer[0].params.min_level, 40);
+
+  const sparkle = applyTuning(effect({ component: 'sparkle' }), {
+    layerId: 'a',
+    kind: 'param',
+    param: 'rate',
+    value: 8,
+  });
+  assert.equal(sparkle.ok, true);
+  assert.equal(sparkle.effect.layer[0].params.rate, 8);
+
+  const fire = applyTuning(effect({ component: 'fire', color: { type: 'ramp', colors: RAIN_COLORS } }), {
+    layerId: 'a',
+    kind: 'param',
+    param: 'cooling',
+    value: 90,
+  });
+  assert.equal(fire.ok, true);
+  assert.equal(fire.effect.layer[0].params.cooling, 90);
+
+  const rejected = applyTuning(effect({ component: 'breath' }), {
+    layerId: 'a',
+    kind: 'param',
+    param: 'period_ms',
+    value: 800,
+  });
+  assert.equal(rejected.ok, false);
+  assert.ok(rejected.issues.some((entry) => entry.code === 'PARAM_UNKNOWN' || entry.code === 'PARAM_CONFLICT'));
+
+  const unknown = applyTuning(effect({ component: 'static' }), {
+    layerId: 'a',
+    kind: 'param',
+    param: 'rate',
+    value: 8,
+  });
+  assert.equal(unknown.ok, false);
+});
+
+test('applyTuning preserves ramp alphas and does not invent a fire axis', () => {
+  const colors = RAIN_COLORS.map((stop) => [...stop]);
+  const nextColors = RAIN_COLORS.map((stop) => [...stop]).reverse();
+  const fire = applyTuning(
+    effect({
+      component: 'fire',
+      color: {
+        type: 'ramp',
+        colors,
+        alphas: [20, 80, 140, 200, 255],
+        stops: [0, 200, 400, 700, 1000],
+      },
+    }),
+    {
+      layerId: 'a',
+      kind: 'color',
+      color: { kind: 'stops', colors: nextColors },
+    },
+  );
+  assert.equal(fire.ok, true);
+  assert.deepEqual(fire.effect.layer[0].color, {
+    type: 'ramp',
+    colors: nextColors,
+    alphas: [20, 80, 140, 200, 255],
+    stops: [0, 200, 400, 700, 1000],
+  });
+  assert.equal(fire.effect.layer[0].color.axis, undefined);
+});
+
+test('applyTuning refuses to replace a custom ramp with a named palette', () => {
+  const result = applyTuning(
+    effect({
+      component: 'ring',
+      color: {
+        type: 'ramp',
+        colors: [
+          [255, 0, 0],
+          [0, 0, 255],
+        ],
+      },
+    }),
+    { layerId: 'a', kind: 'color', color: { kind: 'palette', palette: 'seven' } },
+  );
+  assert.equal(result.ok, false);
+  assert.equal(result.issues[0].code, 'COLOR_INVALID');
 });
