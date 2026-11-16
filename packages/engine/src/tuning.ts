@@ -41,6 +41,7 @@ export interface TuningSpeedControl {
   max: number;
   params: string[];
   inverse: boolean;
+  values: Record<string, number>;
 }
 
 export interface TuningAreaControl {
@@ -56,22 +57,82 @@ export interface TuningDirectionControl {
   options: string[];
 }
 
+/** Read-only colour mode the editor must not pretend is a named palette or a solid swatch. */
+export interface TuningModeColor {
+  kind: 'mode';
+  mode: 'hue_cycle' | 'from_input' | 'random' | 'palette_index' | 'default';
+  palette?: string;
+  period_ms?: number;
+  min?: number;
+  max?: number;
+}
+
+export const HUE_CYCLE_PERIOD = { min: 1, max: 65535, default: 3000 } as const;
+
+export interface TuningParamControl {
+  kind: 'param';
+  param: string;
+  value: number | string | boolean;
+  min?: number;
+  max?: number;
+  enum?: string[];
+  boolean?: boolean;
+}
+
 export type TuningControl =
-  TuningColorControl | TuningSpeedControl | TuningAreaControl | TuningDirectionControl;
+  | TuningColorControl
+  | TuningModeColor
+  | TuningSpeedControl
+  | TuningAreaControl
+  | TuningDirectionControl
+  | TuningParamControl;
 
 export interface LayerTuningSchema {
   layerId: string;
   controls: TuningControl[];
 }
 
-export type TuningColor = TuningColorControl;
+export interface TuningHueCycleColor {
+  kind: 'hue_cycle';
+  period_ms: number;
+}
+
+export type TuningColor = TuningColorControl | TuningHueCycleColor;
 
 export type TuningPatch =
   | { layerId: string; kind: 'enabled'; value: boolean }
   | { layerId: string; kind: 'color'; color: TuningColor }
   | { layerId: string; kind: 'speed'; multiplier: number }
   | { layerId: string; kind: 'area'; regions: string[] }
-  | { layerId: string; kind: 'direction'; value: string };
+  | { layerId: string; kind: 'direction'; value: string }
+  | { layerId: string; kind: 'param'; param: string; value: number | string | boolean };
+
+/**
+ * Extra editor params (beyond the shared speed / direction controls).
+ * Only these registered fields are writable through a param patch.
+ */
+export const EDITOR_LAYER_PARAMS: Readonly<Record<string, readonly string[]>> = {
+  breath: ['min_level'],
+  blink: ['soft'],
+  sparkle: ['rate'],
+  fire: ['cooling', 'sparking', 'spread'],
+  rain: ['drops_per_second', 'tail_first'],
+  wave: ['wavelength', 'axis'],
+  scroll: ['width', 'axis'],
+  drift: ['count', 'size', 'motion'],
+  mote: ['count', 'size', 'motion'],
+  ring: ['max_radius', 'width'],
+  key_ring: ['max_radius', 'width', 'origin', 'envelope'],
+  key_burst: ['max_radius', 'origin', 'max_bursts'],
+  ripple: ['max_waves'],
+  ripple_square: ['max_waves'],
+  reactive: ['duration_ms'],
+  rainbow_wave: ['width_pct', 'axis', 'angle_deg'],
+  spiral: ['arms', 'twist', 'beam'],
+  spectrum: ['gain', 'dense'],
+  spectrum_mirror: ['gain', 'dense', 'full_range'],
+  spectrum_sum: ['gain', 'attack_ms', 'release_ms'],
+};
 
 export interface ApplyTuningOk {
   ok: true;
@@ -122,7 +183,7 @@ function setAxis(color: unknown, value: string): void {
   if (isRecord(color)) color['axis'] = value;
 }
 
-function colorControl(layer: LayerDsl): TuningColorControl {
+function colorControl(layer: LayerDsl): TuningColorControl | TuningModeColor | null {
   const color = layer.color as ColorSpec | null | undefined;
   if (color) {
     if (color.type === 'solid') {
@@ -134,20 +195,52 @@ function colorControl(layer: LayerDsl): TuningColorControl {
       }
       return { kind: 'palette', palette: color.palette ?? 'rainbow24' };
     }
-    const palette = (color as { palette?: unknown }).palette;
-    return { kind: 'palette', palette: typeof palette === 'string' ? palette : 'rainbow24' };
+    if (
+      color.type === 'hue_cycle' ||
+      color.type === 'from_input' ||
+      color.type === 'random' ||
+      color.type === 'palette_index'
+    ) {
+      const palette = (color as { palette?: unknown }).palette;
+      const period = color.type === 'hue_cycle' ? (color as { period_ms?: unknown }).period_ms : undefined;
+      return {
+        kind: 'mode',
+        mode: color.type,
+        ...(typeof palette === 'string' ? { palette } : {}),
+        ...(color.type === 'hue_cycle'
+          ? {
+              period_ms:
+                typeof period === 'number' && Number.isFinite(period) ? period : HUE_CYCLE_PERIOD.default,
+              min: HUE_CYCLE_PERIOD.min,
+              max: HUE_CYCLE_PERIOD.max,
+            }
+          : {}),
+      };
+    }
   }
   const product = getPrimitiveProduct(layer.component);
   if (product?.colorSlots.includes('palette')) {
     const palette = layer.params?.palette;
     return { kind: 'palette', palette: typeof palette === 'string' ? palette : 'rainbow24' };
   }
-  return { kind: 'single', rgb: [255, 255, 255] };
+  // Fire with no color uses the built-in flame ramp; a solid swatch would fail validation.
+  if (layer.component === 'fire') {
+    return { kind: 'mode', mode: 'default' };
+  }
+  if (!color) {
+    return { kind: 'single', rgb: [255, 255, 255] };
+  }
+  return null;
 }
 
 function speedControl(layer: LayerDsl): TuningSpeedControl | null {
   const product = getPrimitiveProduct(layer.component);
   if (!product || product.speed.params.length === 0) return null;
+  const component = getComponent(layer.component);
+  const values: Record<string, number> = {};
+  for (const param of product.speed.params) {
+    values[param] = effectiveNumber(layer, param, component?.params[param]);
+  }
   return {
     kind: 'speed',
     multiplier: 1,
@@ -155,6 +248,7 @@ function speedControl(layer: LayerDsl): TuningSpeedControl | null {
     max: SPEED_MAX_MULTIPLIER,
     params: [...product.speed.params],
     inverse: product.speed.inverse,
+    values,
   };
 }
 
@@ -192,14 +286,64 @@ function directionControl(layer: LayerDsl): TuningDirectionControl | null {
   };
 }
 
+function isBooleanParam(spec: RegistryParamSpec | undefined, raw: unknown): boolean {
+  return typeof spec?.default === 'boolean' || typeof raw === 'boolean';
+}
+
+function currentAxis(layer: LayerDsl): string | undefined {
+  const raw = layer.params?.['axis'];
+  if (typeof raw === 'string') return raw;
+  const fromColor = axisOf(layer.color);
+  if (fromColor) return fromColor;
+  const fallback = getComponent(layer.component)?.params['axis']?.default;
+  return typeof fallback === 'string' ? fallback : undefined;
+}
+
+function paramControls(layer: LayerDsl): TuningParamControl[] {
+  const names = EDITOR_LAYER_PARAMS[layer.component];
+  if (!names || names.length === 0) return [];
+  const component = getComponent(layer.component);
+  const controls: TuningParamControl[] = [];
+  for (const param of names) {
+    const spec = component?.params[param];
+    if (!spec) continue;
+    // Mode-aware: hide controls that are illegal or meaningless in the current mode.
+    if (param === 'angle_deg' && currentAxis(layer) !== 'angle') continue;
+    if (param === 'duration_ms' && layer.params?.['color_mode'] !== 'lifecycle') continue;
+    const options = Array.isArray(spec.enum) ? [...spec.enum] : undefined;
+    const raw = layer.params?.[param];
+    let value: number | string | boolean;
+    if (options && options.length > 0) {
+      value = typeof raw === 'string' && options.includes(raw) ? raw : String(spec.default ?? options[0]);
+    } else if (isBooleanParam(spec, raw)) {
+      value = typeof raw === 'boolean' ? raw : Boolean(spec?.default);
+    } else {
+      value = effectiveNumber(layer, param, spec);
+    }
+    controls.push({
+      kind: 'param',
+      param,
+      value,
+      ...(typeof spec.min === 'number' ? { min: spec.min } : {}),
+      ...(typeof spec.max === 'number' ? { max: spec.max } : {}),
+      ...(options ? { enum: options } : {}),
+      ...(typeof value === 'boolean' ? { boolean: true } : {}),
+    });
+  }
+  return controls;
+}
+
 export function tuningSchema(effect: EffectDsl): LayerTuningSchema[] {
   return (effect.layer ?? []).map((layer) => {
-    const controls: TuningControl[] = [colorControl(layer)];
+    const controls: TuningControl[] = [];
+    const color = colorControl(layer);
+    if (color) controls.push(color);
     const speed = speedControl(layer);
     if (speed) controls.push(speed);
     controls.push(areaControl(layer));
     const direction = directionControl(layer);
     if (direction) controls.push(direction);
+    controls.push(...paramControls(layer));
     return { layerId: layer.id, controls };
   });
 }
@@ -222,21 +366,59 @@ function effectiveNumber(layer: LayerDsl, param: string, spec: RegistryParamSpec
   return 0;
 }
 
+function colorTypeAllowed(component: string, type: ColorSpec['type'] | 'palette'): boolean {
+  const capability = getCapabilities(component);
+  if (!capability) return false;
+  if (type !== 'palette' && capability.colorTypes.includes(type)) return true;
+  // palette-only layers can omit color and keep a named palette in params.
+  if (type === 'palette' && (capability.paletteValues?.length ?? 0) > 0) return true;
+  return false;
+}
+
 function applyColor(layer: LayerDsl, color: TuningColor): ValidationIssue[] {
+  if (color.kind === 'hue_cycle') {
+    const existing = layer.color as ColorSpec | null | undefined;
+    if (!existing || existing.type !== 'hue_cycle') {
+      return [
+        issue('layer.color', 'COLOR_INVALID', 'hue cycle period can only be edited on a hue_cycle colour'),
+      ];
+    }
+    if (typeof color.period_ms !== 'number' || !Number.isFinite(color.period_ms)) {
+      return [issue('layer.color.period_ms', 'PARAM_TYPE', 'must be a finite number')];
+    }
+    let period = Math.round(color.period_ms);
+    if (period < HUE_CYCLE_PERIOD.min) period = HUE_CYCLE_PERIOD.min;
+    if (period > HUE_CYCLE_PERIOD.max) period = HUE_CYCLE_PERIOD.max;
+    layer.color = { ...existing, period_ms: period };
+    return [];
+  }
   if (color.kind === 'single') {
+    if (!colorTypeAllowed(layer.component, 'solid')) {
+      return [issue('layer.color', 'COLOR_UNSUPPORTED', `${layer.component} does not accept a solid swatch`)];
+    }
     layer.color = { type: 'solid', rgb: cloneRgb(color.rgb) };
     return [];
   }
   if (color.kind === 'stops') {
+    if (!colorTypeAllowed(layer.component, 'ramp')) {
+      return [issue('layer.color', 'COLOR_UNSUPPORTED', `${layer.component} does not accept a colour ramp`)];
+    }
     if (!Array.isArray(color.colors) || color.colors.length < 2 || color.colors.length > 32) {
       return [issue('layer.color.colors', 'COLOR_INVALID', 'must contain 2..32 RGB stops')];
     }
-    const axis = axisOf(layer.color) ?? 'x';
-    layer.color = {
+    const previous = isRecord(layer.color) ? (layer.color as Record<string, unknown>) : null;
+    const next: Record<string, unknown> = {
       type: 'ramp',
-      axis,
       colors: color.colors.map((stop) => cloneRgb(stop)),
     };
+    const axis = axisOf(previous) ?? (layer.component === 'gradient' ? 'x' : undefined);
+    if (axis !== undefined) next['axis'] = axis;
+    if (previous) {
+      for (const key of ['alphas', 'stops', 'palette', 'from', 'to'] as const) {
+        if (previous[key] !== undefined) next[key] = cloneValue(previous[key]);
+      }
+    }
+    layer.color = next as ColorSpec;
     return [];
   }
   const capability = getCapabilities(layer.component);
@@ -247,6 +429,30 @@ function applyColor(layer: LayerDsl, color: TuningColor): ValidationIssue[] {
     return [
       issue('layer.params.palette', 'PARAM_TYPE', `must be one of ${capability.paletteValues.join(', ')}`),
     ];
+  }
+  const existing = layer.color as ColorSpec | null | undefined;
+  if (existing && existing.type === 'ramp' && Array.isArray(existing.colors) && existing.colors.length > 0) {
+    return [
+      issue(
+        'layer.color',
+        'COLOR_INVALID',
+        'a custom ramp cannot be replaced by a named palette from this control',
+      ),
+    ];
+  }
+  if (existing && (existing.type === 'hue_cycle' || existing.type === 'from_input')) {
+    return [
+      issue(
+        'layer.color',
+        'COLOR_INVALID',
+        `${existing.type} colour cannot be switched to a named palette from this control`,
+      ),
+    ];
+  }
+  if (existing && (existing.type === 'random' || existing.type === 'palette_index')) {
+    layer.color = { ...existing, palette: color.palette } as ColorSpec;
+    paramsFor(layer).palette = color.palette;
+    return [];
   }
   paramsFor(layer).palette = color.palette;
   delete (layer as Record<string, unknown>).color;
@@ -306,6 +512,57 @@ function applyDirection(layer: LayerDsl, value: string): ValidationIssue[] {
   return [];
 }
 
+function applyParam(layer: LayerDsl, param: string, value: number | string | boolean): ValidationIssue[] {
+  const allowed = EDITOR_LAYER_PARAMS[layer.component];
+  if (!allowed || !allowed.includes(param)) {
+    return [
+      issue(
+        `layer.params.${param}`,
+        'PARAM_UNKNOWN',
+        `${layer.component} does not expose ${param} for editing`,
+      ),
+    ];
+  }
+  const product = getPrimitiveProduct(layer.component);
+  if (product?.speed.params.includes(param) || product?.direction === param) {
+    return [
+      issue(
+        `layer.params.${param}`,
+        'PARAM_CONFLICT',
+        `${param} is edited through the speed or direction control`,
+      ),
+    ];
+  }
+  const spec = getComponent(layer.component)?.params[param];
+  if (!spec) {
+    return [issue(`layer.params.${param}`, 'PARAM_UNKNOWN', `${param} is not in the registry`)];
+  }
+  const options = Array.isArray(spec.enum) ? spec.enum : null;
+  if (options && options.length > 0) {
+    if (typeof value !== 'string' || !options.includes(value)) {
+      return [issue(`layer.params.${param}`, 'PARAM_TYPE', `must be one of ${options.join(', ')}`)];
+    }
+    paramsFor(layer)[param] = value;
+    return [];
+  }
+  const raw = layer.params?.[param];
+  if (isBooleanParam(spec, raw)) {
+    if (typeof value !== 'boolean') {
+      return [issue(`layer.params.${param}`, 'PARAM_TYPE', 'must be a boolean')];
+    }
+    paramsFor(layer)[param] = value;
+    return [];
+  }
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    return [issue(`layer.params.${param}`, 'PARAM_TYPE', 'must be a finite number')];
+  }
+  let next = Math.round(value);
+  if (typeof spec.min === 'number' && next < spec.min) next = spec.min;
+  if (typeof spec.max === 'number' && next > spec.max) next = spec.max;
+  paramsFor(layer)[param] = next;
+  return [];
+}
+
 export function applyTuning(effect: EffectDsl, patch: TuningPatch): ApplyTuningResult {
   const next = cloneValue(effect);
   const layer = (next.layer ?? []).find((candidate) => candidate.id === patch.layerId);
@@ -341,6 +598,9 @@ export function applyTuning(effect: EffectDsl, patch: TuningPatch): ApplyTuningR
       break;
     case 'direction':
       issues = applyDirection(layer, patch.value);
+      break;
+    case 'param':
+      issues = applyParam(layer, patch.param, patch.value);
       break;
     default:
       issues = [issue('layer', 'LAYER_INVALID', 'unknown tuning patch')];

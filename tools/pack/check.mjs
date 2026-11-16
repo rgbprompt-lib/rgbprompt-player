@@ -60,6 +60,14 @@ const PACKAGES = [
     repoIife: 'packages/safety/dist/player/safety.iife.js',
   },
 ];
+// Each archive and exact workspace dependency follows its own canonical package version.
+for (const pkg of PACKAGES) {
+  pkg.version = JSON.parse(readFileSync(join(ROOT, pkg.dir, 'package.json'), 'utf8')).version;
+  for (const name of Object.keys(pkg.dependencies)) {
+    const dir = name.replace('@rgbprompt/', 'packages/');
+    pkg.dependencies[name] = JSON.parse(readFileSync(join(ROOT, dir, 'package.json'), 'utf8')).version;
+  }
+}
 const PLAYER_CASES = ['example-cyber-breath', 'example-music-spectrum', 'prim-sparkle-default'];
 const FORBIDDEN_PATH = /\/workspace|\/Users\/|\\Users\\|file:\/\/|node_modules/;
 const SPECIFIER_SOURCE = String.raw`(?:from\s+|import\s*\(\s*)['"]([^'"]+)['"]`;
@@ -114,7 +122,7 @@ function contentSha256(tarball) {
 function packOne(pkg, destination) {
   run('pnpm', ['pack', '--pack-destination', destination], join(ROOT, pkg.dir));
   const name = pkg.name.replace('@rgbprompt/', 'rgbprompt-');
-  return join(destination, `${name}-0.6.0.tgz`);
+  return join(destination, `${name}-${pkg.version}.tgz`);
 }
 
 function inspect(pkg, tarball) {
@@ -147,7 +155,7 @@ function inspect(pkg, tarball) {
     }
   }
   const manifest = JSON.parse(tarFile(tarball, 'package/package.json').toString('utf8'));
-  if (manifest.version !== '0.6.0') fail(`${pkg.name} version is ${manifest.version}`);
+  if (manifest.version !== pkg.version) fail(`${pkg.name} version is ${manifest.version}`);
   if (manifest.private) fail(`${pkg.name} is still private`);
   if (JSON.stringify(manifest.scripts ?? {}) !== '{}') fail(`${pkg.name} published scripts are not empty`);
   const deps = manifest.dependencies ?? {};
@@ -252,7 +260,11 @@ function main() {
   const second = join(tmpdir(), `rgbprompt-tarballs-b-${process.pid}`);
   mkdirSync(first);
   mkdirSync(second);
-  const pins = { schema: 1, version: '0.6.0', packages: {} };
+  const pins = {
+    schema: 1,
+    version: PACKAGES.find((pkg) => pkg.name === '@rgbprompt/engine').version,
+    packages: {},
+  };
   const tarballs = {};
   for (const pkg of PACKAGES) {
     const a = packOne(pkg, first);
@@ -260,7 +272,7 @@ function main() {
     const hashA = inspect(pkg, a);
     const hashB = contentSha256(b);
     if (hashA !== hashB) fail(`${pkg.name} content hash changed between two packs`);
-    pins.packages[pkg.name] = { version: '0.6.0', contentSha256: hashA };
+    pins.packages[pkg.name] = { version: pkg.version, contentSha256: hashA };
     tarballs[pkg.name] = a;
     console.log(`pack: ${pkg.name} ${hashA}`);
   }

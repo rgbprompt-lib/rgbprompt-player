@@ -75,8 +75,8 @@ targets:
       base:
         PRODUCT_NAME: RGBPrompt Player
         PRODUCT_BUNDLE_IDENTIFIER: com.rgbprompt.player
-        MARKETING_VERSION: 0.7.0
-        CURRENT_PROJECT_VERSION: 11
+        MARKETING_VERSION: 0.7.1
+        CURRENT_PROJECT_VERSION: 12
         INFOPLIST_FILE: Sources/RGBPromptPlayer/Info.plist
         GENERATE_INFOPLIST_FILE: NO
         RGBP_API_BASE: https://rgbprompt.com/api

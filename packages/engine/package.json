@@ -1,6 +1,6 @@
 {
   "name": "@rgbprompt/engine",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "private": false,
   "description": "RGBPrompt lighting engine: validate, render, and encode .lep effects.",
   "license": "MIT",

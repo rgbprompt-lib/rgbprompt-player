@@ -1,18 +1,18 @@
 {
   "schema": 1,
-  "version": "0.6.0",
+  "version": "0.6.1",
   "packages": {
     "@rgbprompt/layouts": {
       "version": "0.6.0",
       "contentSha256": "0143ad62463dc897f2f6db98ef80658a8e7bceda2209c0aab147d4456812fca8"
     },
     "@rgbprompt/engine": {
-      "version": "0.6.0",
-      "contentSha256": "ed97e78996ca6ac09d73641c0a85d0f1a299be8671807912e68a06c58ffdd3ac"
+      "version": "0.6.1",
+      "contentSha256": "bbb2c8b84bc10c0ea9655764143e4f275eced71c8645edfc217c19d6a89bf0f4"
     },
     "@rgbprompt/safety": {
       "version": "0.6.0",
-      "contentSha256": "8498b016244f08fc6148830e33079cd33e45c7bfe33a59043f4454df38d1cdcc"
+      "contentSha256": "584b1c18154fd8f46c2e2b5e6bfe259f50244f54677c9295e5ca8f73e8bf837c"
     }
   }
 }
